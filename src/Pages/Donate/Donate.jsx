@@ -60,7 +60,7 @@ const Donate = () => {
     const donor_email = form.donor_email.value;
     const donor_aadhar = form.donor_aadhar.value;
     const pan = `${panAlpha}${panNum}${panLast}`;
-    const amount = form.donation_amount.value;
+    const amount = form.amount.value;
     const donor_message = form.donor_message.value;
 
     const res = await loadRazorpayScript();
@@ -72,7 +72,7 @@ const Donate = () => {
     // 1. Create order from backend
     let orderData;
     try {
-      const orderRes = await fetch('https://backend-beta-seven-41.vercel.app/api/razorpay/order', {
+      const orderRes = await fetch('http://localhost:5000/api/razorpay/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -104,7 +104,7 @@ const Donate = () => {
       handler: async function (response) {
         // 3. On payment success, verify and store in backend
         try {
-          await fetch('https://backend-beta-seven-41.vercel.app/api/razorpay/verify', {
+          await fetch('http://localhost:5000/api/razorpay/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
