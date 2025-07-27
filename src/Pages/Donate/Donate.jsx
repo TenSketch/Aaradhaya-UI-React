@@ -72,7 +72,7 @@ const Donate = () => {
     // 1. Create order from backend
     let orderData;
     try {
-      const orderRes = await fetch('http://localhost:5000/api/razorpay/order', {
+      const orderRes = await fetch('https://aaradhaya-backend.vercel.app/api/razorpay/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -104,7 +104,7 @@ const Donate = () => {
       handler: async function (response) {
         // 3. On payment success, verify and store in backend
         try {
-          await fetch('http://localhost:5000/api/razorpay/verify', {
+          await fetch('https://aaradhaya-backend.vercel.app/api/razorpay/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
