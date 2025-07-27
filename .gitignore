@@ -1,3 +1,5 @@
+# Ignore server.cjs (backend server file)
+server.cjs
 # Ignore Aaradhya Trust admin folder
 Aaradhya_Trust/admin/
 

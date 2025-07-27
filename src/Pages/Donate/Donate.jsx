@@ -60,7 +60,7 @@ const Donate = () => {
     const donor_email = form.donor_email.value;
     const donor_aadhar = form.donor_aadhar.value;
     const pan = `${panAlpha}${panNum}${panLast}`;
-    const donation_amount = form.donation_amount.value;
+    const amount = form.donation_amount.value;
     const donor_message = form.donor_message.value;
 
     const res = await loadRazorpayScript();
@@ -72,11 +72,11 @@ const Donate = () => {
     // 1. Create order from backend
     let orderData;
     try {
-      const orderRes = await fetch('http://localhost:5000/api/razorpay/order', {
+      const orderRes = await fetch('https://backend-beta-seven-41.vercel.app/api/razorpay/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: donation_amount,
+          amount,
           donor_name,
           donor_email,
           donor_mobile,
@@ -95,7 +95,7 @@ const Donate = () => {
     // 2. Open Razorpay checkout
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: Number(donation_amount) * 100,
+      amount: Number(amount) * 100,
       currency: 'INR',
       name: 'Aaradhya Trust',
       description: 'Donation',
@@ -104,7 +104,7 @@ const Donate = () => {
       handler: async function (response) {
         // 3. On payment success, verify and store in backend
         try {
-          await fetch('http://localhost:5000/api/razorpay/verify', {
+          await fetch('https://backend-beta-seven-41.vercel.app/api/razorpay/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -117,7 +117,7 @@ const Donate = () => {
                 donor_mobile,
                 donor_aadhar,
                 pan,
-                donation_amount,
+                amount,
                 donor_message,
               },
               status: 'success',
@@ -243,7 +243,7 @@ const Donate = () => {
                     <small className="text-gray-500 text-xs">For issuing 80G certificates.</small>
                   </div>
                   <div className="relative">
-                    <input type="number" name="donation_amount" required min={100} max={1000000}
+                    <input type="number" name="amount" required min={100} max={1000000}
                       className="peer w-full px-3 pt-5 pb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-clr"
                       placeholder=" " />
                     <label className="absolute text-sm text-gray-500 left-3 top-2 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm transition-all">
