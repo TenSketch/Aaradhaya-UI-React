@@ -1,0 +1,44 @@
+/* Gallery Page Styles (adapted from Aaradhya_Trust/style.css) */
+.gallery-page main {
+  padding-top: 120px;
+  padding-bottom: 2rem;
+}
+.gallery-page h1 {
+  color: hsl(36, 66%, 58%);
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  font-size: 2.75rem;
+  line-height: 1.1;
+}
+.gallery-page p {
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  line-height: 1.7;
+}
+.gallery-page .gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+@media (min-width: 768px) {
+  .gallery-page .gallery-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.gallery-page .gallery-card {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  background: #fff;
+  transition: transform 0.3s;
+}
+.gallery-page .gallery-card img {
+  width: 100%;
+  height: 16rem;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s;
+}
+.gallery-page .gallery-card img:hover {
+  transform: scale(1.05);
+}

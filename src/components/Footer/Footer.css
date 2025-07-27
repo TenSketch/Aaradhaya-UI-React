@@ -1,0 +1,41 @@
+footer {
+  background-color: hsl(36, 66%, 58%);
+  padding: 2rem 0;
+}
+footer .container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 768px) {
+  footer .container {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+footer .container.footer-bottom {
+  display: flex;
+}
+footer .container.footer-bottom p {
+  text-align: center;
+}
+footer h5 {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+footer a {
+  transition: color 0.3s ease;
+}
+footer a:hover {
+  color: #fff;
+}
+footer ul {
+  list-style: none;
+  padding: 0;
+}
+footer ul li {
+  margin-bottom: 0.25rem;
+}
+footer .text-center {
+  margin-top: 1rem;
+  color: hsl(128, 70%, 41%);
+}

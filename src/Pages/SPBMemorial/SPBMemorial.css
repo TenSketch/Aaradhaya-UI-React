@@ -1,0 +1,50 @@
+/* SPB Memorial Page Styles */
+.spb-memorial-page .memorial-hero-section {
+  position: relative;
+  min-height: 60vh;
+  height: 100vh;
+  overflow: hidden;
+}
+.spb-memorial-page .memorial-hero-section video {
+  object-fit: cover;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+}
+.spb-memorial-page .memorial-hero-section h1 {
+  color: hsl(36, 66%, 58%);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.spb-memorial-page .text-gold {
+  color: hsl(36, 66%, 58%) !important;
+}
+.spb-memorial-page section.container {
+  background: rgba(255,255,255,0.95);
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  margin-bottom: 2rem;
+}
+
+/* Design & Plan Card and Image Styling */
+.spb-memorial-page .design-card {
+  height: 320px;
+  min-height: 220px;
+  max-height: 400px;
+  display: flex;
+  align-items: stretch;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  background: #fff;
+}
+.spb-memorial-page .design-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  transition: transform 0.3s;
+  display: block;
+}
+.spb-memorial-page .design-card img:hover {
+  transform: scale(1.03);
+}

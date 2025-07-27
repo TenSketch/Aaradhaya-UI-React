@@ -1,0 +1,22 @@
+/* Admin Login Page Custom Styles */
+.login-container {
+  /* Custom shadow and border for the login box */
+  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
+  border-radius: 1rem;
+}
+.logo-container img {
+  width: 96px;
+  height: auto;
+}
+.input-group i {
+  font-size: 1.1rem;
+}
+.btn-login {
+  background: linear-gradient(90deg, #16a34a 0%, #166534 100%);
+}
+.brand {
+  color: #166534;
+}
+.error-message {
+  border: 1px solid #f87171;
+}
