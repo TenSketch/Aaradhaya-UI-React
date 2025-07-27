@@ -21,8 +21,24 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    // Here you would send the form data to your backend or service
+    // Send form data to backend
+    fetch('https://backend-beta-seven-41.vercel.app/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: form.contact_name,
+        email: form.contact_email,
+        phone: form.contact_phone,
+        message: form.contact_message,
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        setSubmitted(true);
+      })
+      .catch(() => {
+        alert('Failed to submit your message. Please try again.');
+      });
   };
 
   return (

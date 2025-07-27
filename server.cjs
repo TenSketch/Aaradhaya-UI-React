@@ -31,6 +31,27 @@ const razorpay = new Razorpay({
   key_secret: process.env.VITE_RAZORPAY_KEY_SECRET,
 });
 
+// Save 'Get in Touch' form submissions to Firestore
+app.post('/api/contact', async (req, res) => {
+  try {
+    const { name, email, phone, message } = req.body;
+    if (!name || !email || !message) {
+      return res.status(400).json({ success: false, message: 'Name, email, and message are required.' });
+    }
+    const db = admin.firestore();
+    await db.collection('contacts').add({
+      name,
+      email,
+      phone: phone || '',
+      message,
+      created_at: new Date(),
+    });
+    res.json({ success: true, message: 'Contact enquiry submitted successfully.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to submit contact enquiry', details: err.message });
+  }
+});
+
 // Create Razorpay order
 app.post('/api/razorpay/order', async (req, res) => {
   console.log('[ORDER] Incoming donation order request:', req.body);
