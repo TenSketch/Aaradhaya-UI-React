@@ -51,3 +51,5 @@ coverage/
  
 # Aaradhya Trust static site
 Aaradhya_Trust/
+
+.vercel
