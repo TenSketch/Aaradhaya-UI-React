@@ -103,7 +103,7 @@ const Donate = () => {
       order_id: orderData.order.id,
       handler: async function (response) {
         try {
-          await fetch('https://backend-beta-seven-41.vercel.app//api/razorpay/verify', {
+          await fetch('https://backend-beta-seven-41.vercel.app/api/razorpay/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
