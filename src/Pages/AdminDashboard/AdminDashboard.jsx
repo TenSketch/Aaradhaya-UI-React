@@ -11,7 +11,8 @@ const AdminDashboard = () => {
   // Modal state for viewing contact enquiry
   const [viewEnquiry, setViewEnquiry] = useState(null);
   // Donations state
-  const [recentDonations, setRecentDonations] = useState([]);
+  const [allDonations, setAllDonations] = useState([]); // for full donations tab
+  const [recentDonations, setRecentDonations] = useState([]); // Only last 5 donations for dashboard view
   // Contact enquiries state
   const [contactEnquiries, setContactEnquiries] = useState([]);
   const handleRefreshDonations = async () => {
@@ -20,15 +21,17 @@ const AdminDashboard = () => {
     allDonationsSnap.forEach(doc => {
       const data = doc.data();
       let status = data.status || data.payment_status || data.razorpay_status || "-";
+      console.log("Donation doc:", doc.id, data); // Debug: log each donation document
       allDonations.push({ ...data, id: doc.id, status });
     });
-    // Sort by created_at descending
+    // Sort by createdAt descending
     allDonations.sort((a, b) => {
-      let aDate = typeof a.created_at === "object" && a.created_at.toDate ? a.created_at.toDate() : new Date(a.created_at);
-      let bDate = typeof b.created_at === "object" && b.created_at.toDate ? b.created_at.toDate() : new Date(b.created_at);
+      let aDate = typeof a.createdAt === "object" && a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
+      let bDate = typeof b.createdAt === "object" && b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
       return bDate - aDate;
     });
-    setRecentDonations(allDonations);
+    setAllDonations(allDonations);
+    setRecentDonations(allDonations.slice(0, 5));
   };
 
   // Export Excel handler
@@ -83,8 +86,9 @@ const AdminDashboard = () => {
 
   // Sort donations by status whenever statusFilter or recentDonations changes
 // Sort and search donations whenever statusFilter, searchTerm, or recentDonations changes
+// Sort and search donations whenever statusFilter, searchTerm, or allDonations changes
 useEffect(() => {
-  let filtered = recentDonations;
+  let filtered = allDonations;
   if (statusFilter) {
     filtered = filtered.filter(donation => donation.status === statusFilter);
   }
@@ -92,13 +96,13 @@ useEffect(() => {
     const term = searchTerm.trim().toLowerCase();
     filtered = filtered.filter(donation => {
       const name = (donation.donor || donation.donor_name || "Anonymous").toLowerCase();
-      const email = (donation.email || "-").toLowerCase();
+      const email = (donation.email || donation.donor_email || "-").toLowerCase();
       const pan = (donation.pan || "-").toLowerCase();
       return name.includes(term) || email.includes(term) || pan.includes(term);
     });
   }
   setSortedDonations(filtered);
-}, [statusFilter, searchTerm, recentDonations]);
+}, [statusFilter, searchTerm, allDonations]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -109,6 +113,8 @@ useEffect(() => {
       let donationsArr = [];
       donationsSnap.forEach(doc => {
         const data = doc.data();
+        // Debug: log each donation document
+        console.log("Donation doc in stats:", doc.id, data);
         // Normalize status field: check for status, payment_status, or razorpay_status
         let status = data.status || data.payment_status || data.razorpay_status || "-";
         donationsArr.push({ ...data, id: doc.id, status });
@@ -144,11 +150,12 @@ useEffect(() => {
       });
       // Sort by created_at descending
       allDonations.sort((a, b) => {
-        let aDate = typeof a.created_at === "object" && a.created_at.toDate ? a.created_at.toDate() : new Date(a.created_at);
-        let bDate = typeof b.created_at === "object" && b.created_at.toDate ? b.created_at.toDate() : new Date(b.created_at);
+        let aDate = typeof a.createdAt === "object" && a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
+        let bDate = typeof b.createdAt === "object" && b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
         return bDate - aDate;
       });
-      setRecentDonations(allDonations);
+      setAllDonations(allDonations);
+      setRecentDonations(allDonations.slice(0, 5));
 
       // Donation trends (last 10 transactions)
       // Sort donationsArr by created_at descending
@@ -352,7 +359,7 @@ useEffect(() => {
                   <p className="text-gray-600">Manage and track all donations</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <button className="btn btn-secondary" onClick={handleRefreshDonations}>
+                  <button className="btn btn-secondary" onClick={() => { handleRefreshDonations(); }}>
                     <i className="fas fa-sync-alt mr-2"></i>Refresh Status
                   </button>
                   <button className="btn btn-primary" onClick={handleExportExcel}>
@@ -408,15 +415,21 @@ useEffect(() => {
                       <tr><td colSpan={8} className="text-center text-gray-500 py-4">No donations found.</td></tr>
                     )}
                     {sortedDonations.map(donation => (
-                      <tr key={donation.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">{donation.donor || donation.donor_name || "Anonymous"}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{donation.email || "-"}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{donation.phone || "-"}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{donation.pan || "-"}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{donation.aadhar || "-"}</td>
-                        <td className="px-6 py-4 whitespace-nowrap font-bold text-green-600">₹{donation.amount}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{donation.created_at ? new Date(donation.created_at).toLocaleString() : "-"}</td>
-                      </tr>
+                      (() => {
+                        console.log("Render donation row:", donation);
+                        return (
+                          <tr key={donation.id}>
+                            <td className="px-6 py-4 whitespace-nowrap">{donation.donor_name || donation.donor || "Anonymous"}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{donation.donor_email || "-"}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{donation.donor_mobile || "-"}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{donation.pan || "-"}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{donation.donor_aadhar || "-"}</td>
+                            <td className="px-6 py-4 whitespace-nowrap font-bold text-green-600">₹{donation.amount}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{donation.status}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{donation.createdAt ? (typeof donation.createdAt === "object" && donation.createdAt.toDate ? donation.createdAt.toDate().toLocaleString() : new Date(donation.createdAt).toLocaleString()) : "-"}</td>
+                          </tr>
+                        );
+                      })()
                     ))}
                   </tbody>
                 </table>
