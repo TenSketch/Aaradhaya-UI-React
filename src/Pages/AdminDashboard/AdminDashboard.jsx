@@ -196,45 +196,61 @@ useEffect(() => {
     fetchStats();
   }, []);
   // Chart.js donation trends
-  useEffect(() => {
-    if (!chartRef.current) return;
+useEffect(() => {
+  // Only render chart if dashboard tab is active and canvas is present
+  if (activeTab !== "dashboard" || !chartRef.current) {
+    // Destroy chart if leaving dashboard tab
     if (chartInstance.current) {
       chartInstance.current.destroy();
+      chartInstance.current = null;
     }
-    chartInstance.current = new Chart(chartRef.current, {
-      type: "line",
-      data: {
-        labels: donationTrends.labels,
-        datasets: [
-          {
-            label: "Donations (₹)",
-            data: donationTrends.data,
-            borderColor: "#2563eb",
-            backgroundColor: "rgba(37,99,235,0.1)",
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: "#2563eb",
-            pointBorderColor: "#fff",
-            pointRadius: 5,
-            pointHoverRadius: 7,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: true, position: "top" },
-          tooltip: { mode: "index", intersect: false },
+    return;
+  }
+  // Destroy previous chart instance if exists
+  if (chartInstance.current) {
+    chartInstance.current.destroy();
+    chartInstance.current = null;
+  }
+  chartInstance.current = new Chart(chartRef.current, {
+    type: "line",
+    data: {
+      labels: donationTrends.labels,
+      datasets: [
+        {
+          label: "Donations (₹)",
+          data: donationTrends.data,
+          borderColor: "#2563eb",
+          backgroundColor: "rgba(37,99,235,0.1)",
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: "#2563eb",
+          pointBorderColor: "#fff",
+          pointRadius: 5,
+          pointHoverRadius: 7,
         },
-        interaction: { mode: "nearest", axis: "x", intersect: false },
-        scales: {
-          x: { display: true, title: { display: true, text: "Day" } },
-          y: { display: true, title: { display: true, text: "Amount (₹)" }, beginAtZero: true },
-        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true, position: "top" },
+        tooltip: { mode: "index", intersect: false },
       },
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [donationTrends]);
+      interaction: { mode: "nearest", axis: "x", intersect: false },
+      scales: {
+        x: { display: true, title: { display: true, text: "Day" } },
+        y: { display: true, title: { display: true, text: "Amount (₹)" }, beginAtZero: true },
+      },
+    },
+  });
+  // Cleanup chart on unmount or tab switch
+  return () => {
+    if (chartInstance.current) {
+      chartInstance.current.destroy();
+      chartInstance.current = null;
+    }
+  };
+}, [donationTrends, activeTab]);
 
   // Animate numbers when stats change
   useEffect(() => {
