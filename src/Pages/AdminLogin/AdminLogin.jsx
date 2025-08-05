@@ -16,7 +16,7 @@ const AdminLogin = () => {
     setError("");
     const username = e.target.username.value;
     const password = e.target.password.value;
-    const apiUrl = "http://localhost:5000/api/admin/login";
+    const apiUrl = "https://backend-beta-seven-41.vercel.app/api/admin/login";
     fetch(apiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
