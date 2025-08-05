@@ -202,7 +202,7 @@ app.post('/api/razorpay/verify', async (req, res) => {
 
 // Use Firebase Auth REST API for password verification
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY; // Add this to your .env
+const FIREBASE_API_KEY = process.env.VITE_FIREBASE_API_KEY; // Add this to your .env
 
 app.get('/api/admin/stats', async (req, res) => {
   try {

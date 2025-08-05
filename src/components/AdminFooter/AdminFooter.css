@@ -1,0 +1,43 @@
+/* Admin Footer Component Styles */
+.admin-footer {
+  height: 60px;
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .admin-footer {
+    padding-left: 1rem !important;
+  }
+}
+
+/* Hover effects */
+.admin-footer:hover {
+  box-shadow: 0 -6px 25px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Text styling */
+.admin-footer .text-yellow-400 {
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+}
+
+/* Animation for the footer */
+.admin-footer {
+  animation: slideInFromBottom 0.3s ease-out;
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

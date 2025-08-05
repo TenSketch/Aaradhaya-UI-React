@@ -4,6 +4,7 @@ import Chart from "chart.js/auto";
 import { db } from "../../firebase";
 import AdminNavbar from "../../components/AdminNavbar/AdminNavbar";
 import AdminSidebar from "../../components/AdminSidebar/AdminSidebar";
+import AdminFooter from "../../components/AdminFooter/AdminFooter";
 import "../../components/AdminDashboard/admin-style.css";
 
 
@@ -312,7 +313,7 @@ useEffect(() => {
     <>
       <AdminNavbar />
       <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
-      <main className="main-content ml-0 lg:ml-64 mt-16 p-4 pb-20">
+      <main className="main-content ml-0 lg:ml-64 mt-16 p-4 pb-24">
         {/* Dashboard View */}
         {activeTab === "dashboard" && (
           <div id="dashboard-view" className="view active">
@@ -584,6 +585,7 @@ useEffect(() => {
           </div>
         )}
       </main>
+      <AdminFooter />
     </>
   );
 };

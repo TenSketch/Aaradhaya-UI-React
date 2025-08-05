@@ -22,7 +22,7 @@ const Contact = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Send form data to backend
-    fetch('https://backend-beta-seven-41.vercel.app/api/contact', {
+    fetch('http://localhost:5000/api/contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
