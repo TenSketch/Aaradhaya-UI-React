@@ -39,14 +39,14 @@ const AdminDashboard = () => {
     // Prepare data for export
     const headers = ["Name", "Email", "Phone", "PAN", "Aadhar", "Amount", "Status", "Date"];
     const rows = recentDonations.map(donation => [
-      donation.donor || donation.donor_name || "Anonymous",
-      donation.email || "-",
-      donation.phone || "-",
+      donation.donor_name || donation.donor || "Anonymous",
+      donation.donor_email || donation.email || "-",
+      donation.donor_mobile || donation.phone || "-",
       donation.pan || "-",
-      donation.aadhar || "-",
+      donation.donor_aadhar || donation.aadhar || "-",
       donation.amount,
       donation.status,
-      donation.created_at ? (typeof donation.created_at === "object" && donation.created_at.toDate ? donation.created_at.toDate().toLocaleString() : new Date(donation.created_at).toLocaleString()) : "-"
+      donation.createdAt ? (typeof donation.createdAt === "object" && donation.createdAt.toDate ? donation.createdAt.toDate().toLocaleString() : new Date(donation.createdAt).toLocaleString()) : "-"
     ]);
     // Generate timestamp for filename
     const now = new Date();
