@@ -23,7 +23,7 @@ const AdminNavbar = () => {
           </button>
           <div className="flex items-center space-x-4">
             <div className="bg-white rounded-full p-2 shadow-lg">
-              <img src={logo} alt="Aaradhya Trust Logo" className="h-8 w-8" />
+              <img src={logo} alt="Aaradhya Trust Logo" className="h-8 w-123" />
             </div>
             <div className="hidden md:block">
               <h1 className="text-xl font-bold text-white">Aaradhya Trust</h1>
