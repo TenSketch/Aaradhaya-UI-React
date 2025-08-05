@@ -143,10 +143,6 @@ app.post('/api/razorpay/verify', async (req, res) => {
                     <td style="padding: 8px 0; color: #14532d; font-weight: bold;">₹${donorDetails.amount}</td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0; color: #555;">Ticket ID:</td>
-                    <td style="padding: 8px 0; color: #333;">${donorDetails.ticket_id || docRef.id}</td>
-                  </tr>
-                  <tr>
                     <td style="padding: 8px 0; color: #555;">Razorpay Payment ID:</td>
                     <td style="padding: 8px 0; color: #333;">${razorpay_payment_id}</td>
                   </tr>

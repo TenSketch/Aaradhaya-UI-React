@@ -48,12 +48,20 @@ const AdminDashboard = () => {
       donation.status,
       donation.created_at ? (typeof donation.created_at === "object" && donation.created_at.toDate ? donation.created_at.toDate().toLocaleString() : new Date(donation.created_at).toLocaleString()) : "-"
     ]);
-    // SheetJS export
+    // Generate timestamp for filename
+    const now = new Date();
+    const pad = n => n.toString().padStart(2, '0');
+    let hours = now.getHours();
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // 0 should be 12
+    const timestamp = `${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()}-${pad(hours)}-${pad(now.getMinutes())}${ampm}`;
+    const filename = `aaradhya-donation-${timestamp}.xls`;
     import("xlsx").then(XLSX => {
       const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Donations");
-      XLSX.writeFile(workbook, "donations.xlsx");
+      XLSX.writeFile(workbook, filename);
     });
   };
   const [stats, setStats] = useState({
@@ -73,10 +81,31 @@ const AdminDashboard = () => {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  // Auto-collapse sidebar on tab change
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Start collapsed for mobile, will be handled by CSS on desktop
+  
+  // Handle responsive sidebar behavior
   useEffect(() => {
-    setSidebarCollapsed(true);
+    const handleResize = () => {
+      // On desktop (lg breakpoint: 1024px), sidebar should always be visible
+      // On mobile/tablet, keep current collapsed state
+      if (window.innerWidth >= 1024) {
+        // Desktop: sidebar is always shown via CSS (lg:translate-x-0)
+        // We don't need to change the collapsed state for desktop
+      }
+    };
+
+    // Set initial state based on screen size
+    handleResize();
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  // Auto-collapse sidebar on tab change (only on mobile/tablet)
+  useEffect(() => {
+    // Only auto-collapse on mobile/tablet screens
+    if (window.innerWidth < 1024) {
+      setSidebarCollapsed(true);
+    }
     // Optionally, expand after a short delay if needed
     // setTimeout(() => setSidebarCollapsed(false), 300);
   }, [activeTab]);

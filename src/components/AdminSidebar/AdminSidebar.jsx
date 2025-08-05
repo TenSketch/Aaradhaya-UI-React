@@ -1,7 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef } from "react";
 
-const AdminSidebar = ({ activeTab, setActiveTab }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false); // For mobile collapse
+const AdminSidebar = ({ activeTab, setActiveTab, collapsed, setCollapsed }) => {
+  const sidebarRef = useRef(null);
+
+
+  // Handle click outside to close sidebar on mobile/tablet only
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Only handle click outside on mobile/tablet (screen width < 1024px)
+      if (window.innerWidth >= 1024) return;
+      
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target) && !collapsed) {
+        // Check if click is not on the hamburger button
+        const hamburgerButton = event.target.closest('button[aria-label="Toggle sidebar"]');
+        if (!hamburgerButton) {
+          setCollapsed(true);
+        }
+      }
+    };
+
+    // Only add event listener if sidebar is open on mobile/tablet
+    if (!collapsed && window.innerWidth < 1024) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [collapsed, setCollapsed]);
 
   const menuItems = [
     {
@@ -26,10 +52,19 @@ const AdminSidebar = ({ activeTab, setActiveTab }) => {
 
   return (
     <>
+      {/* Overlay for mobile/tablet - only show when sidebar is open and on smaller screens */}
+      {!collapsed && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30 transition-opacity duration-300"
+          onClick={() => setCollapsed(true)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Hamburger button for mobile */}
       <button
         className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-blue-900 rounded-md shadow-md focus:outline-none"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
+        onClick={() => setCollapsed(!collapsed)}
         aria-label="Toggle sidebar"
       >
         <span className="block w-6 h-1 bg-yellow-400 mb-1 rounded"></span>
@@ -38,8 +73,9 @@ const AdminSidebar = ({ activeTab, setActiveTab }) => {
       </button>
 
       <aside
+        ref={sidebarRef}
         className={`sidebar fixed left-0 top-16 h-full bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 text-white w-64 lg:translate-x-0 transition-transform duration-300 ease-in-out z-40 shadow-2xl
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          ${!collapsed ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0
         `}
         style={{
@@ -67,7 +103,14 @@ const AdminSidebar = ({ activeTab, setActiveTab }) => {
               <a
                 key={item.id}
                 href="#"
-                onClick={() => setActiveTab(item.id)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveTab(item.id);
+                  // Close sidebar on mobile/tablet when item is clicked
+                  if (window.innerWidth < 1024) {
+                    setCollapsed(true);
+                  }
+                }}
                 className={`nav-item group flex items-center justify-between p-3 rounded-xl transition-all duration-200 ${
                   activeTab === item.id
                     ? 'bg-yellow-400 text-blue-900 shadow-lg transform scale-105'
@@ -94,24 +137,6 @@ const AdminSidebar = ({ activeTab, setActiveTab }) => {
               </a>
             ))}
           </nav>
-
-          {/* Bottom section */}
-          <div className="absolute bottom-6 left-6 right-6">
-            <div className="bg-blue-800 rounded-xl p-4 border border-blue-700">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="bg-green-500 rounded-full p-1">
-                  <i className="fas fa-bolt text-white text-xs"></i>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">System Status</p>
-                  <p className="text-xs text-blue-300">All systems operational</p>
-                </div>
-              </div>
-              <div className="w-full bg-blue-700 rounded-full h-2">
-                <div className="bg-green-400 h-2 rounded-full" style={{width: '85%'}}></div>
-              </div>
-            </div>
-          </div>
         </div>
       </aside>
     </>
