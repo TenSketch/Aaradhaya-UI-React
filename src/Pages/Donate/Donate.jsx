@@ -3,18 +3,22 @@ import "./Donate.css";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { useAuthModal } from "../../context/AuthModalContext";
+import { getUserEmail, isAuthenticated } from "../../utils/auth";
 
 const Donate = () => {
   // Authentication state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
   const { openAuthModal } = useAuthModal();
   const [loginPromptModal, setLoginPromptModal] = useState(false);
 
-  // Check if user is logged in
+  // Check if user is logged in and get their email
   useEffect(() => {
-    const token = localStorage.getItem('user_token');
-    const userData = localStorage.getItem('user_data');
-    setIsLoggedIn(token && userData);
+    const authenticated = isAuthenticated();
+    setIsLoggedIn(authenticated);
+    if (authenticated) {
+      setUserEmail(getUserEmail());
+    }
   }, []);
 
   // PAN input component for auto keyboard toggle
@@ -202,11 +206,16 @@ const Donate = () => {
                   </div>
                   <div className="relative">
                     <input type="email" name="donor_email" required
-                      className="peer w-full px-3 pt-5 pb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-clr"
+                      value={isLoggedIn ? userEmail : undefined}
+                      readOnly={isLoggedIn}
+                      className={`peer w-full px-3 pt-5 pb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-clr ${isLoggedIn ? 'bg-gray-50 cursor-not-allowed' : ''}`}
                       placeholder=" " />
                     <label className="absolute text-sm text-gray-500 left-3 top-2 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm transition-all">
                       Email Address <span className="text-red-500">*</span>
                     </label>
+                    {isLoggedIn && (
+                      <small className="text-green-600 text-xs">Using email from your account</small>
+                    )}
                   </div>
                   <div className="relative">
                     <input type="text" name="donor_aadhar" required pattern="\d{12}" maxLength={12}

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
+import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { auth, googleProvider } from '../../firebase';
 import 'react-toastify/dist/ReactToastify.css';
 import './AuthModal.css';
 
@@ -20,63 +22,110 @@ const AuthModal = ({ isOpen, onClose }) => {
     });
   };
 
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      
+      // Store user data in localStorage
+      const userData = {
+        uid: user.uid,
+        name: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL
+      };
+      
+      localStorage.setItem('user_token', user.accessToken || 'google_auth_token');
+      localStorage.setItem('user_data', JSON.stringify(userData));
+      
+      toast.success('Successfully signed in with Google!');
+      setTimeout(() => {
+        onClose();
+        window.location.reload();
+      }, 1500);
+    } catch (error) {
+      console.error('Google login error:', error);
+      toast.error('Google login failed. Please try again.');
+    }
+    setLoading(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       if (isSignUp) {
-        // Handle signup
+        // Handle Firebase signup
         if (formData.password !== formData.confirmPassword) {
           toast.error('Passwords do not match!');
           setLoading(false);
           return;
         }
 
-        const response = await fetch('http://localhost:5000/api/auth/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            password: formData.password
-          })
-        });
-
-        const data = await response.json();
-        if (data.success) {
-          toast.success('Account created successfully!');
-          setIsSignUp(false);
-          setFormData({ name: '', email: '', password: '', confirmPassword: '' });
-        } else {
-          toast.error(data.message || 'Signup failed');
-        }
+        const userCredential = await createUserWithEmailAndPassword(
+          auth, 
+          formData.email, 
+          formData.password
+        );
+        
+        const user = userCredential.user;
+        const userData = {
+          uid: user.uid,
+          name: formData.name,
+          email: user.email
+        };
+        
+        localStorage.setItem('user_token', user.accessToken || 'firebase_auth_token');
+        localStorage.setItem('user_data', JSON.stringify(userData));
+        
+        toast.success('Account created successfully!');
+        setTimeout(() => {
+          onClose();
+          window.location.reload();
+        }, 1500);
       } else {
-        // Handle signin
-        const response = await fetch('http://localhost:5000/api/auth/signin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password
-          })
-        });
-
-        const data = await response.json();
-        if (data.success) {
-          toast.success('Signed in successfully!');
-          localStorage.setItem('user_token', data.token);
-          localStorage.setItem('user_data', JSON.stringify(data.user));
-          setTimeout(() => {
-            onClose();
-            window.location.reload(); // Refresh to update navbar
-          }, 1500);
-        } else {
-          toast.error(data.message || 'Signin failed');
-        }
+        // Handle Firebase signin
+        const userCredential = await signInWithEmailAndPassword(
+          auth, 
+          formData.email, 
+          formData.password
+        );
+        
+        const user = userCredential.user;
+        const userData = {
+          uid: user.uid,
+          name: user.displayName || 'User',
+          email: user.email
+        };
+        
+        localStorage.setItem('user_token', user.accessToken || 'firebase_auth_token');
+        localStorage.setItem('user_data', JSON.stringify(userData));
+        
+        toast.success('Signed in successfully!');
+        setTimeout(() => {
+          onClose();
+          window.location.reload();
+        }, 1500);
       }
     } catch (error) {
-      toast.error('Server error. Please try again.');
+      console.error('Authentication error:', error);
+      let errorMessage = 'Authentication failed. Please try again.';
+      
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'Email already in use. Please try signing in instead.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Password should be at least 6 characters.';
+      } else if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email.';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Incorrect password.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email address.';
+      }
+      
+      toast.error(errorMessage);
     }
     setLoading(false);
   };
@@ -178,6 +227,20 @@ const AuthModal = ({ isOpen, onClose }) => {
                 )}
               </button>
             </form>
+
+            <div className="auth-divider">
+              <span>or</span>
+            </div>
+
+            <button
+              type="button"
+              className="auth-google-btn"
+              onClick={handleGoogleLogin}
+              disabled={loading}
+            >
+              <i className="fab fa-google mr-2"></i>
+              Continue with Google
+            </button>
 
             <div className="auth-toggle">
               <p>
