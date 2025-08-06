@@ -52,4 +52,7 @@ coverage/
 # Aaradhya Trust static site
 Aaradhya_Trust/
 
+# Ignore dataconncet folder and its files
+dataconncet/
+
 .vercel

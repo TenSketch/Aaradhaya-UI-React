@@ -125,9 +125,6 @@ const AdminDashboard = () => {
 
   const [sortedDonations, setSortedDonations] = useState([]);
 
-  // Sort donations by status whenever statusFilter or recentDonations changes
-// Sort and search donations whenever statusFilter, searchTerm, or recentDonations changes
-// Sort and search donations whenever statusFilter, searchTerm, or allDonations changes
 useEffect(() => {
   let filtered = allDonations;
   if (statusFilter) {

@@ -265,6 +265,75 @@ app.post('/api/admin/login', async (req, res) => {
   }
 });
 
+// User signup endpoint
+app.post('/api/auth/signup', async (req, res) => {
+  const { name, email, password } = req.body;
+  if (!name || !email || !password) {
+    return res.status(400).json({ success: false, message: 'Name, email, and password are required.' });
+  }
+  try {
+    const db = admin.firestore();
+    // Check if user already exists
+    const userSnap = await db.collection('users').where('email', '==', email).get();
+    if (!userSnap.empty) {
+      return res.status(400).json({ success: false, message: 'User already exists with this email.' });
+    }
+    // Create new user
+    const newUser = {
+      name,
+      email,
+      password, // In production, hash this password
+      createdAt: new Date(),
+      isActive: true
+    };
+    const docRef = await db.collection('users').add(newUser);
+    res.json({ 
+      success: true, 
+      message: 'Account created successfully!',
+      userId: docRef.id
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// User signin endpoint
+app.post('/api/auth/signin', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ success: false, message: 'Email and password are required.' });
+  }
+  try {
+    const db = admin.firestore();
+    // Find user by email
+    const userSnap = await db.collection('users').where('email', '==', email).get();
+    if (userSnap.empty) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials.' });
+    }
+    const userDoc = userSnap.docs[0];
+    const userData = userDoc.data();
+    
+    if (userData.password === password) {
+      // Generate a simple token (in production, use JWT)
+      const token = `user-${userDoc.id}-${Date.now()}`;
+      res.json({
+        success: true,
+        message: 'Signed in successfully!',
+        token,
+        user: {
+          id: userDoc.id,
+          name: userData.name,
+          email: userData.email
+        }
+      });
+    } else {
+      res.status(401).json({ success: false, message: 'Invalid credentials.' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

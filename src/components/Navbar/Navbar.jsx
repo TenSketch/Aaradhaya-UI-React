@@ -2,13 +2,20 @@
 
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useAuthModal } from '../../context/AuthModalContext';
 import './Navbar.css';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
+
   const handleToggle = () => setMenuOpen((open) => !open);
   const handleLinkClick = () => setMenuOpen(false);
+  const { openAuthModal } = useAuthModal();
+  const handleAuthModalOpen = () => {
+    openAuthModal();
+    setMenuOpen(false);
+  };
 
   return (
     <nav className="navbar fixed top-0 z-50 transition-all mx-auto px-5 py-3 flex items-center justify-between">
@@ -52,10 +59,21 @@ const Navbar = () => {
             <i className="fas fa-donate mr-1"></i> Donate
           </NavLink>
         </li>
+        {/* Signup/Signin Button */}
+        <li>
+          <button
+            onClick={handleAuthModalOpen}
+            className="nav-link flex items-center bg-green-700 hover:bg-green-800 text-white font-semibold px-4 py-2 rounded-lg transition ml-2 border-none cursor-pointer"
+          >
+            <i className="fas fa-sign-in-alt mr-1"></i> Signup/Signin
+          </button>
+        </li>
       </ul>
       <button id="menu-toggle" className="flex-auto lg:hidden" onClick={handleToggle} aria-label="Toggle menu">
         <i className="fa-brands fa-pagelines fa-3x"></i>
       </button>
+      
+      {/* Auth Modal handled globally */}
     </nav>
   );
 };

@@ -1,9 +1,22 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./Donate.css";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
+import { useAuthModal } from "../../context/AuthModalContext";
 
 const Donate = () => {
+  // Authentication state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { openAuthModal } = useAuthModal();
+  const [loginPromptModal, setLoginPromptModal] = useState(false);
+
+  // Check if user is logged in
+  useEffect(() => {
+    const token = localStorage.getItem('user_token');
+    const userData = localStorage.getItem('user_data');
+    setIsLoggedIn(token && userData);
+  }, []);
+
   // PAN input component for auto keyboard toggle
   const panAlphaRef = useRef(null);
   const panNumRef = useRef(null);
@@ -54,6 +67,13 @@ const Donate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Check if user is logged in
+    if (!isLoggedIn) {
+      setLoginPromptModal(true);
+      return;
+    }
+    
     const form = e.target;
     const donor_name = form.donor_name.value;
     const donor_mobile = form.donor_mobile.value;
@@ -161,8 +181,9 @@ const Donate = () => {
               <div className="text-center">
                 <img src="/assets/images/gallery/SPB_Museum-photos-8.jpg" alt="Donate to Support" className="mx-auto max-w-full rounded-md shadow-md" />
               </div>
-              <div>
-                <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="relative">
+                <div className={`${!isLoggedIn ? 'blur-sm pointer-events-none' : ''}`}>
+                  <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="relative">
                     <input type="text" name="donor_name" required minLength={3} maxLength={50}
                       className="peer w-full px-3 pt-5 pb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-clr"
@@ -266,6 +287,34 @@ const Donate = () => {
                     </button>
                   </div>
                 </form>
+                </div>
+                
+                {/* Login Prompt Overlay */}
+                {!isLoggedIn && (
+                  <div className="absolute inset-0 flex items-center justify-center z-10">
+                    <div className="bg-white rounded-lg shadow-2xl p-8 max-w-md mx-4 text-center border">
+                      <div className="mb-4">
+                        <i className="fas fa-lock text-4xl text-gray-400 mb-3"></i>
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2">Login Required</h3>
+                        <p className="text-gray-600 mb-6">
+                          Please sign in to your account to make a donation. This helps us provide you with proper donation receipts and track your contributions.
+                        </p>
+                      </div>
+                      <div className="space-y-3">
+                        <button
+                          onClick={openAuthModal}
+                          className="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center"
+                        >
+                          <i className="fas fa-sign-in-alt mr-2"></i>
+                          Sign In / Sign Up
+                        </button>
+                        <p className="text-sm text-gray-500">
+                          Don't have an account? You can create one during the sign-in process.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -291,6 +340,8 @@ const Donate = () => {
             </div>
           </div>
         )}
+
+        {/* Auth Modal handled globally */}
       </main>
       <Footer />
     </div>
