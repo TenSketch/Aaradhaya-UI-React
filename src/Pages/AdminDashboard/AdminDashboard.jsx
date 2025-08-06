@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import Chart from "chart.js/auto";
 import { db } from "../../firebase";
 import AdminNavbar from "../../components/AdminNavbar/AdminNavbar";
@@ -12,6 +13,7 @@ const AdminDashboard = () => {
   // Modal state for viewing contact enquiry
   const [viewEnquiry, setViewEnquiry] = useState(null);
   // Donations state
+  const navigate = useNavigate();
   const [allDonations, setAllDonations] = useState([]); // for full donations tab
   const [recentDonations, setRecentDonations] = useState([]); // Only last 5 donations for dashboard view
   // Contact enquiries state
@@ -112,6 +114,15 @@ const AdminDashboard = () => {
   }, [activeTab]);
   const [statusFilter, setStatusFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+   useEffect(() => {
+    const adminToken = localStorage.getItem("admin_token");
+    if (!adminToken) {
+      // Redirect to login page if token is not present
+      alert("You are not signed in. Redirecting to login page.");
+      navigate("/admin");
+    }
+  }, [navigate]);
+
   const [sortedDonations, setSortedDonations] = useState([]);
 
   // Sort donations by status whenever statusFilter or recentDonations changes
@@ -588,6 +599,9 @@ useEffect(() => {
       <AdminFooter />
     </>
   );
+
+
 };
+
 
 export default AdminDashboard;
