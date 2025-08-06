@@ -238,26 +238,27 @@ app.get('/api/admin/stats', async (req, res) => {
   }
 });
 
+// Admin login using Firestore collection
 app.post('/api/admin/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
-    return res.status(400).json({ success: false, message: 'Username and password required.' });
+    return res.status(400).json({ success: false, message: 'Email and password required.' });
   }
   try {
-    // Firebase Auth REST API endpoint
-    const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: username, password, returnSecureToken: true })
-    });
-    const result = await response.json();
-    if (result && result.idToken) {
-      // Successful login
-      return res.json({ success: true, token: result.idToken, uid: result.localId });
+    const db = admin.firestore();
+    // Query the login collection for a document with matching email
+    const loginSnap = await db.collection('login').where('email', '==', username).get();
+    if (loginSnap.empty) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+    // Assuming only one admin per email
+    const adminDoc = loginSnap.docs[0].data();
+    if (adminDoc.password === password) {
+      // You can generate a JWT or use a dummy token for now
+      const token = 'dummy-admin-token';
+      return res.json({ success: true, token });
     } else {
-      // Failed login
-      return res.status(401).json({ success: false, message: result.error?.message || 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Server error.' });

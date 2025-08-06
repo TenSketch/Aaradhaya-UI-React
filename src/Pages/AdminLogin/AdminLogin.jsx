@@ -76,16 +76,16 @@ const AdminLogin = () => {
                 <span>{error}</span>
               </div>
             )}
-            {/* Username Field */}
+            {/* Email Field */}
             <div className="input-group flex items-center border rounded-lg px-3 py-2 bg-gray-50 mb-2">
               <i className="fas fa-user text-gray-400 mr-2"></i>
               <input
-                type="text"
+                type="email"
                 id="username"
                 name="username"
                 required
                 className="w-full bg-transparent outline-none"
-                placeholder="Username"
+                placeholder="Email"
                 autoComplete="username"
               />
             </div>
