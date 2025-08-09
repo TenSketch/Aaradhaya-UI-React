@@ -19,10 +19,10 @@ const Footer = () => (
       <div className="col2">
         <h5 className="text-xl font-bold mb-2">Legal &amp; Policies</h5>
         <ul>
-          <li><a href="#privacy" className="hover:text-gold">Privacy Policy</a></li>
-          <li><a href="#terms" className="hover:text-gold">Terms &amp; Conditions</a></li>
-          <li><a href="#cancellation" className="hover:text-gold">Cancellation &amp; Refund Policy</a></li>
-          <li><a href="#shipping" className="hover:text-gold">Shipping &amp; Delivery Policy</a></li>
+          <li><NavLink to="/privacy-policy" className={({ isActive }) => isActive ? 'hover:text-gold font-bold' : 'hover:text-gold'}>Privacy Policy</NavLink></li>
+          <li><NavLink to="/terms-and-conditions" className={({ isActive }) => isActive ? 'hover:text-gold font-bold' : 'hover:text-gold'}>Terms &amp; Conditions</NavLink></li>
+          <li><NavLink to="/cancellation-refund-policy" className={({ isActive }) => isActive ? 'hover:text-gold font-bold' : 'hover:text-gold'}>Cancellation &amp; Refund Policy</NavLink></li>
+          <li><NavLink to="/shipping-delivery-policy" className={({ isActive }) => isActive ? 'hover:text-gold font-bold' : 'hover:text-gold'}>Shipping &amp; Delivery Policy</NavLink></li>
         </ul>
       </div>
       <div className="col4">

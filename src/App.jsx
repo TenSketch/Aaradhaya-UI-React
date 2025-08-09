@@ -9,6 +9,10 @@ import Contact from './Pages/Contact/Contact';
 import Donate from './Pages/Donate/Donate';
 import AdminLogin from './Pages/AdminLogin/AdminLogin';
 import AdminDashboard from './Pages/AdminDashboard/AdminDashboard';
+import PrivacyPolicy from './Pages/Legal/PrivacyPolicy';
+import TermsAndConditions from './Pages/Legal/TermsAndConditions';
+import CancellationRefundPolicy from './Pages/Legal/CancellationRefundPolicy';
+import ShippingDeliveryPolicy from './Pages/Legal/ShippingDeliveryPolicy';
 
 function App() {
   return (
@@ -21,6 +25,10 @@ function App() {
         <Route path="/donate" element={<Donate />} />
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+        <Route path="/cancellation-refund-policy" element={<CancellationRefundPolicy />} />
+        <Route path="/shipping-delivery-policy" element={<ShippingDeliveryPolicy />} />
       </Routes>
       <AuthModalWrapper />
     </AuthModalProvider>
