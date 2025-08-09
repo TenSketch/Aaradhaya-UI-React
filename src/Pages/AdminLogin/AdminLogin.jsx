@@ -16,7 +16,7 @@ const AdminLogin = () => {
     setError("");
     const username = e.target.username.value;
     const password = e.target.password.value;
-    const apiUrl = "https://backend-beta-seven-41.vercel.app/api/admin/login";
+  const apiUrl = "https://backend-beta-seven-41.vercel.app/api/admin/login";
     fetch(apiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -35,7 +35,6 @@ const AdminLogin = () => {
             draggable: true,
             progress: undefined,
           });
-          // Save token to localStorage
           localStorage.setItem("admin_token", data.token);
           setTimeout(() => {
             navigate("/admin/dashboard");
