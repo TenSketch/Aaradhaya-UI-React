@@ -169,7 +169,10 @@ app.post('/api/razorpay/verify', async (req, res) => {
                 </table>
                 <div style="background: #e6f4ea; border-left: 4px solid #14532d; padding: 16px 20px; border-radius: 6px; margin-bottom: 24px; color: #14532d;">
                   <b>We appreciate your support!</b><br>
-                  Your contribution will help us make a positive impact in the lives of many.
+                  Your contribution will help us make a positive impact in the lives of many.<br>
+                  <span style="display:block; margin-top:10px; color:#14532d; font-weight:bold;">All donations made are eligible for tax exemptions under Section 80G.</span>
+                  <span style="display:block; margin-top:6px; color:#14532d; font-weight:bold;">Registration No.: AAJTA6207EF20211</span>
+                  <span style="display:block; margin-top:6px; color:#14532d;">Read our <a href="https://www.aaradhyatrust.org/terms-and-conditions" style="color:#14532d; text-decoration:underline;" target="_blank">Terms & Conditions</a>.</span>
                 </div>
                 <p style="font-size: 1rem; color: #555; margin-bottom: 0;">If you have any questions, feel free to contact us:</p>
                 <p style="font-size: 1rem; color: #14532d; margin: 8px 0 0 0;">

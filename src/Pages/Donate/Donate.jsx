@@ -337,6 +337,7 @@ const Donate = () => {
               <p className="text-gray-700 mb-3">
                 Your contribution helps our trust to make a positive impact in the lives of many.
               </p>
+              <p className="text-green-700 font-semibold mb-2">All donations made are eligible for tax exemptions under Section 80G.</p>
               <hr className="border-t border-gray-300 my-4" />
               <p className="text-gray-700">If you have any questions, feel free to contact us:</p>
               <p className="text-sm mt-2">
