@@ -57,6 +57,11 @@ const SPBMemorial = () => {
               </div>
             ))}
           </div>
+          <div className="flex justify-center mt-8">
+            <a href="https://spbmuseum.com" target="_blank" rel="noopener noreferrer" className="px-6 py-3 text-lg font-semibold rounded-full bg-accent-clr text-primary-clr hover:bg-white hover:text-secondary-clr transition-all duration-300 shadow-lg">
+              View more
+            </a>
+          </div>
         </section>
       </main>
       <Footer />

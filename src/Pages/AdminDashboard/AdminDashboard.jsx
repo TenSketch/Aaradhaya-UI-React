@@ -122,6 +122,10 @@ const AdminDashboard = () => {
   const chartInstance = useRef(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Start collapsed for mobile, will be handled by CSS on desktop
+  // Pagination states
+  const PAGE_SIZE = 10;
+  const [donationPage, setDonationPage] = useState(1);
+  const [contactPage, setContactPage] = useState(1);
   
   // Handle responsive sidebar behavior
   useEffect(() => {
@@ -177,7 +181,20 @@ useEffect(() => {
     });
   }
   setSortedDonations(filtered);
+  // Reset to first page when filters/search change
+  setDonationPage(1);
 }, [statusFilter, searchTerm, allDonations]);
+
+  // Ensure current pages are within bounds when data changes
+  useEffect(() => {
+    const totalDonationPages = Math.max(1, Math.ceil(sortedDonations.length / PAGE_SIZE));
+    if (donationPage > totalDonationPages) setDonationPage(totalDonationPages);
+  }, [sortedDonations, donationPage]);
+
+  useEffect(() => {
+    const totalContactPages = Math.max(1, Math.ceil(contactEnquiries.length / PAGE_SIZE));
+    if (contactPage > totalContactPages) setContactPage(totalContactPages);
+  }, [contactEnquiries, contactPage]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -518,7 +535,9 @@ useEffect(() => {
                     {sortedDonations.length === 0 && (
                       <tr><td colSpan={8} className="text-center text-gray-500 py-4">No donations found.</td></tr>
                     )}
-                    {sortedDonations.map(donation => (
+                    {sortedDonations
+                      .slice((donationPage - 1) * PAGE_SIZE, donationPage * PAGE_SIZE)
+                      .map(donation => (
                       (() => {
                         console.log("Render donation row:", donation);
                         return (
@@ -538,6 +557,24 @@ useEffect(() => {
                   </tbody>
                 </table>
               </div>
+              {/* Donation Pagination Controls */}
+              {sortedDonations.length > PAGE_SIZE && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 border-t bg-gray-50">
+                  <div className="text-sm text-gray-600">Page {donationPage} of {Math.max(1, Math.ceil(sortedDonations.length / PAGE_SIZE))}</div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50"
+                      onClick={() => setDonationPage(p => Math.max(1, p - 1))}
+                      disabled={donationPage === 1}
+                    >Prev</button>
+                    <button
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50"
+                      onClick={() => setDonationPage(p => (p < Math.ceil(sortedDonations.length / PAGE_SIZE) ? p + 1 : p))}
+                      disabled={donationPage >= Math.ceil(sortedDonations.length / PAGE_SIZE)}
+                    >Next</button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -581,7 +618,9 @@ useEffect(() => {
                     {Array.isArray(contactEnquiries) && contactEnquiries.length === 0 && (
                       <tr><td colSpan={6} className="text-center text-gray-500 py-4">No contact enquiries found.</td></tr>
                     )}
-                    {Array.isArray(contactEnquiries) && contactEnquiries.map(enquiry => (
+                    {Array.isArray(contactEnquiries) && contactEnquiries
+                      .slice((contactPage - 1) * PAGE_SIZE, contactPage * PAGE_SIZE)
+                      .map(enquiry => (
                       <tr key={enquiry.id}>
                         <td className="px-6 py-4 whitespace-nowrap">{enquiry.name || '-'}</td>
                         <td className="px-6 py-4 whitespace-nowrap">{enquiry.email || '-'}</td>
@@ -597,6 +636,24 @@ useEffect(() => {
                   </tbody>
                 </table>
               </div>
+              {/* Contact Pagination Controls */}
+              {contactEnquiries.length > PAGE_SIZE && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 border-t bg-gray-50">
+                  <div className="text-sm text-gray-600">Page {contactPage} of {Math.max(1, Math.ceil(contactEnquiries.length / PAGE_SIZE))}</div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50"
+                      onClick={() => setContactPage(p => Math.max(1, p - 1))}
+                      disabled={contactPage === 1}
+                    >Prev</button>
+                    <button
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50"
+                      onClick={() => setContactPage(p => (p < Math.ceil(contactEnquiries.length / PAGE_SIZE) ? p + 1 : p))}
+                      disabled={contactPage >= Math.ceil(contactEnquiries.length / PAGE_SIZE)}
+                    >Next</button>
+                  </div>
+                </div>
+              )}
             </div>
             {/* Modal for viewing contact enquiry details - moved outside table/tbody for valid HTML */}
             {viewEnquiry && (

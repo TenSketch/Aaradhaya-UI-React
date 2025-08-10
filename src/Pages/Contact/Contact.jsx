@@ -14,6 +14,7 @@ const initialState = {
 const Contact = () => {
   const [form, setForm] = useState(initialState);
   const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,8 +22,8 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Send form data to backend
-  fetch('https://backend-beta-seven-41.vercel.app/api/contact', {
+    setIsLoading(true);
+    fetch('https://backend-beta-seven-41.vercel.app/api/contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -35,9 +36,11 @@ const Contact = () => {
       .then(res => res.json())
       .then(data => {
         setSubmitted(true);
+        setIsLoading(false);
       })
       .catch(() => {
         alert('Failed to submit your message. Please try again.');
+        setIsLoading(false);
       });
   };
 
@@ -88,11 +91,11 @@ const Contact = () => {
                         </label>
                       </div>
                       <div className="relative">
-                        <input type="tel" name="contact_phone" pattern="[6-9]\d{9}" maxLength={10}
+                        <input type="tel" name="contact_phone" pattern="[6-9]\d{9}" maxLength={10} required
                           className="peer w-full px-3 pt-5 pb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-clr"
                           placeholder=" " value={form.contact_phone} onChange={handleChange} />
                         <label className="absolute text-sm text-gray-500 left-3 top-2 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm transition-all">
-                          Mobile Number (Optional)
+                          Mobile Number <span className="text-red-500">*</span>
                         </label>
                       </div>
                       <div className="relative">
@@ -113,8 +116,9 @@ const Contact = () => {
                       </div>
                       <div>
                         <button type="submit"
-                          className="w-full bg-secondary text-white py-2 px-4 rounded-md hover:bg-green-800 transition">
-                          Send Message
+                          className="w-full bg-secondary text-white py-2 px-4 rounded-md hover:bg-green-800 transition"
+                          disabled={isLoading}>
+                          {isLoading ? "Sending..." : "Send Message"}
                         </button>
                       </div>
                     </form>
@@ -124,6 +128,23 @@ const Contact = () => {
             </div>
           </div>
         </section>
+        {/* Loading Overlay */}
+        {isLoading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm mx-4 text-center">
+              <div className="relative mb-6">
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-green-200 border-t-green-600 mx-auto"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <i className="fas fa-envelope text-green-600 text-xl"></i>
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Sending Your Message</h3>
+              <p className="text-gray-600 mb-4">
+                Please wait while we submit your message...
+              </p>
+            </div>
+          </div>
+        )}
       </main>
       <Footer />
     </div>

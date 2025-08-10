@@ -92,8 +92,8 @@ const LandingPage = () => {
               Step into a timeless space where melodies linger and memories come alive. <br />
               Celebrate the legacy of Shri. S.P. Balasubrahmanyam — a tribute for every heart he touched.
             </p>
-            <a href="#memorial" className="inline-block mt-4 px-8 py-3 text-lg font-semibold rounded-full bg-accent-clr text-primary-clr hover:bg-white hover:text-secondary-clr transition-all duration-300 shadow-lg">
-              Enter Now
+              <a href="https://spbmuseum.com" target="_blank" rel="noopener noreferrer" className="inline-block mt-4 px-8 py-3 text-lg font-semibold rounded-full bg-accent-clr text-primary-clr hover:bg-white hover:text-secondary-clr transition-all duration-300 shadow-lg">
+                Enter Now
             </a>
           </div>
           <div className="absolute -top-10 -right-10 opacity-10 text-[10rem] rotate-12">
