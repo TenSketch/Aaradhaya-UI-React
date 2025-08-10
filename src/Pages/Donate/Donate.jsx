@@ -10,7 +10,7 @@ const Donate = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [donorEmail, setDonorEmail] = useState('');
-  const { openAuthModal } = useAuthModal();
+  const { openAuthModal, isAuthModalOpen } = useAuthModal();
   const [loginPromptModal, setLoginPromptModal] = useState(false);
 
   // Check if user is logged in and get their email
@@ -23,6 +23,19 @@ const Donate = () => {
       setDonorEmail(email);
     }
   }, []);
+
+  // Refresh auth state when auth modal closes (after sign-up/sign-in)
+  useEffect(() => {
+    if (!isAuthModalOpen) {
+      const authenticated = isAuthenticated();
+      setIsLoggedIn(authenticated);
+      if (authenticated) {
+        const email = getUserEmail();
+        setUserEmail(email);
+        setDonorEmail(email);
+      }
+    }
+  }, [isAuthModalOpen]);
 
   // PAN input component for auto keyboard toggle
   const panAlphaRef = useRef(null);
@@ -52,6 +65,13 @@ const Donate = () => {
     setPanLast(val);
   };
   const [showThankYou, setShowThankYou] = useState(false);
+    // Function to reset form fields and related state
+    const resetForm = () => {
+      setPanAlpha("");
+      setPanNum("");
+      setPanLast("");
+      setDonorEmail(isLoggedIn ? userEmail : "");
+    };
 
   // Razorpay script loader
   const loadRazorpayScript = () => {
@@ -163,6 +183,7 @@ const Donate = () => {
           // Optionally handle error
         }
         setIsLoading(false);
+    resetForm();
         setShowThankYou(true);
       },
       prefill: {

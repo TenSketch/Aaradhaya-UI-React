@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import "./Contact.css";
+import { getUserEmail, isAuthenticated } from "../../utils/auth";
 
 const initialState = {
   contact_name: "",
@@ -14,6 +15,17 @@ const initialState = {
 const Contact = () => {
   const [form, setForm] = useState(initialState);
   const [submitted, setSubmitted] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  // On mount, fetch user email if logged in
+  React.useEffect(() => {
+    if (isAuthenticated()) {
+      const email = getUserEmail();
+      if (email) {
+        setUserEmail(email);
+        setForm(f => ({ ...f, contact_email: email }));
+      }
+    }
+  }, []);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -83,9 +95,16 @@ const Contact = () => {
                         </label>
                       </div>
                       <div className="relative">
-                        <input type="email" name="contact_email" required
+                        <input
+                          type="email"
+                          name="contact_email"
+                          required
                           className="peer w-full px-3 pt-5 pb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-clr"
-                          placeholder=" " value={form.contact_email} onChange={handleChange} />
+                          placeholder=" "
+                          value={form.contact_email}
+                          onChange={handleChange}
+                          disabled={!!userEmail}
+                        />
                         <label className="absolute text-sm text-gray-500 left-3 top-2 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm transition-all">
                           Email Address <span className="text-red-500">*</span>
                         </label>
