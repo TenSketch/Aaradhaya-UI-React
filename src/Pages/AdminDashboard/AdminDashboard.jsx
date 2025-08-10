@@ -18,6 +18,43 @@ const AdminDashboard = () => {
   const [recentDonations, setRecentDonations] = useState([]); // Only last 5 donations for dashboard view
   // Contact enquiries state
   const [contactEnquiries, setContactEnquiries] = useState([]);
+
+  // Refresh Contact Enquiries
+  const handleRefreshContacts = async () => {
+    const contactsSnap = await getDocs(collection(db, "contacts"));
+    const contactArr = [];
+    contactsSnap.forEach(doc => {
+      const data = doc.data();
+      contactArr.push({ ...data, id: doc.id });
+    });
+    setContactEnquiries(contactArr);
+  };
+
+  // Export Contact Enquiries to Excel
+  const handleExportContactsExcel = () => {
+    const headers = ["Name", "Email", "Phone", "Message", "Date"];
+    const rows = contactEnquiries.map(enquiry => [
+      enquiry.name || '-',
+      enquiry.email || '-',
+      enquiry.phone || '-',
+      enquiry.message || '-',
+      enquiry.created_at ? (typeof enquiry.created_at === 'object' && enquiry.created_at.toDate ? enquiry.created_at.toDate().toLocaleString() : new Date(enquiry.created_at).toLocaleString()) : '-'
+    ]);
+    const now = new Date();
+    const pad = n => n.toString().padStart(2, '0');
+    let hours = now.getHours();
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const timestamp = `${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()}-${pad(hours)}-${pad(now.getMinutes())}${ampm}`;
+    const filename = `aaradhya-contacts-${timestamp}.xls`;
+    import("xlsx").then(XLSX => {
+      const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Contacts");
+      XLSX.writeFile(workbook, filename);
+    });
+  };
   const handleRefreshDonations = async () => {
     const allDonationsSnap = await getDocs(collection(db, "donations"));
     const allDonations = [];
@@ -214,10 +251,21 @@ useEffect(() => {
       const last10 = sortedArr.slice(0, 10).reverse(); // reverse for oldest to newest
       const labels = last10.map(donation => {
         let dateObj;
-        if (typeof donation.created_at === "object" && donation.created_at.toDate) {
-          dateObj = donation.created_at.toDate();
+        // Prefer createdAt, fallback to created_at
+        if (donation.createdAt) {
+          if (typeof donation.createdAt === "object" && donation.createdAt.toDate) {
+            dateObj = donation.createdAt.toDate();
+          } else {
+            dateObj = new Date(donation.createdAt);
+          }
+        } else if (donation.created_at) {
+          if (typeof donation.created_at === "object" && donation.created_at.toDate) {
+            dateObj = donation.created_at.toDate();
+          } else {
+            dateObj = new Date(donation.created_at);
+          }
         } else {
-          dateObj = new Date(donation.created_at);
+          dateObj = new Date(); // fallback to now if no date
         }
         return dateObj.toLocaleString();
       });
@@ -412,12 +460,14 @@ useEffect(() => {
                   <h1 className="text-2xl font-bold text-gray-800">Donations</h1>
                   <p className="text-gray-600">Manage and track all donations</p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-2">
+                <div className="action-buttons">
                   <button className="btn btn-secondary" onClick={() => { handleRefreshDonations(); }}>
-                    <i className="fas fa-sync-alt mr-2"></i>Refresh Status
+                    <i className="fas fa-sync-alt"></i>
+                    <span>Refresh Status</span>
                   </button>
                   <button className="btn btn-primary" onClick={handleExportExcel}>
-                    <i className="fas fa-download mr-2"></i>Export Excel
+                    <i className="fas fa-download"></i>
+                    <span>Export Excel</span>
                   </button>
                 </div>
               </div>
@@ -496,8 +546,22 @@ useEffect(() => {
         {activeTab === "contact" && (
           <div id="contact-view" className="view active">
             <div className="mb-6">
-              <h1 className="text-2xl font-bold text-gray-800">Contact Enquiries</h1>
-              <p className="text-gray-600">Manage contact form submissions</p>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800">Contact Enquiries</h1>
+                  <p className="text-gray-600">Manage contact form submissions</p>
+                </div>
+                <div className="action-buttons">
+                  <button className="btn btn-secondary" onClick={handleRefreshContacts}>
+                    <i className="fas fa-sync-alt"></i>
+                    <span>Refresh</span>
+                  </button>
+                  <button className="btn btn-primary" onClick={handleExportContactsExcel}>
+                    <i className="fas fa-download"></i>
+                    <span>Export Excel</span>
+                  </button>
+                </div>
+              </div>
             </div>
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="overflow-x-auto">
@@ -530,66 +594,66 @@ useEffect(() => {
                         </td>
                       </tr>
                     ))}
-        {/* Modal for viewing contact enquiry details */}
-        {viewEnquiry && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-blue-900/70 via-purple-800/60 to-pink-700/60 backdrop-blur-lg animate-fadeIn">
-            <div className="relative w-full max-w-lg mx-4">
-              <div className="rounded-2xl shadow-2xl bg-white/80 backdrop-blur-xl border border-gray-200 p-8 flex flex-col items-center gap-4 animate-slideUp">
-                <button className="absolute top-4 right-4 text-gray-500 hover:text-pink-600 text-3xl font-bold transition-colors duration-200" onClick={() => setViewEnquiry(null)} aria-label="Close Modal">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-                <div className="flex flex-col items-center gap-2 mb-4">
-                  <div className="bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 p-4 rounded-full shadow-lg">
-                    <i className="fas fa-envelope-open-text text-white text-3xl"></i>
-                  </div>
-                  <h2 className="text-2xl font-extrabold text-gray-800 tracking-tight">Contact Enquiry</h2>
-                  <span className="text-sm text-gray-500">#{viewEnquiry.id?.slice(-6) || 'ID'}</span>
-                </div>
-                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
-                  <div className="flex items-center gap-2">
-                    <i className="fas fa-user text-blue-500"></i>
-                    <span className="font-semibold text-gray-700">Name:</span>
-                  </div>
-                  <span className="text-gray-900">{viewEnquiry.name || '-'}</span>
-                  <div className="flex items-center gap-2">
-                    <i className="fas fa-at text-purple-500"></i>
-                    <span className="font-semibold text-gray-700">Email:</span>
-                  </div>
-                  <span className="text-gray-900">{viewEnquiry.email || '-'}</span>
-                  <div className="flex items-center gap-2">
-                    <i className="fas fa-phone text-pink-500"></i>
-                    <span className="font-semibold text-gray-700">Phone:</span>
-                  </div>
-                  <span className="text-gray-900">{viewEnquiry.phone || '-'}</span>
-                  <div className="flex items-center gap-2">
-                    <i className="fas fa-calendar-alt text-yellow-500"></i>
-                    <span className="font-semibold text-gray-700">Date:</span>
-                  </div>
-                  <span className="text-gray-900">{viewEnquiry.created_at ? (typeof viewEnquiry.created_at === 'object' && viewEnquiry.created_at.toDate ? viewEnquiry.created_at.toDate().toLocaleString() : new Date(viewEnquiry.created_at).toLocaleString()) : '-'}</span>
-                </div>
-                <div className="w-full mt-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <i className="fas fa-comment-dots text-green-500"></i>
-                    <span className="font-semibold text-gray-700">Message:</span>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-4 text-gray-800 shadow-inner min-h-[60px] whitespace-pre-line">
-                    {viewEnquiry.message || '-'}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <style>{`
-              @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-              .animate-fadeIn { animation: fadeIn 0.3s ease; }
-              @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-              .animate-slideUp { animation: slideUp 0.4s cubic-bezier(.4,2,.3,1); }
-            `}</style>
-          </div>
-        )}
                   </tbody>
                 </table>
               </div>
             </div>
+            {/* Modal for viewing contact enquiry details - moved outside table/tbody for valid HTML */}
+            {viewEnquiry && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-blue-900/70 via-purple-800/60 to-pink-700/60 backdrop-blur-lg animate-fadeIn">
+                <div className="relative w-full max-w-lg mx-4">
+                  <div className="rounded-2xl shadow-2xl bg-white/80 backdrop-blur-xl border border-gray-200 p-8 flex flex-col items-center gap-4 animate-slideUp">
+                    <button className="absolute top-4 right-4 text-gray-500 hover:text-pink-600 text-3xl font-bold transition-colors duration-200" onClick={() => setViewEnquiry(null)} aria-label="Close Modal">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                    <div className="flex flex-col items-center gap-2 mb-4">
+                      <div className="bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 p-4 rounded-full shadow-lg">
+                        <i className="fas fa-envelope-open-text text-white text-3xl"></i>
+                      </div>
+                      <h2 className="text-2xl font-extrabold text-gray-800 tracking-tight">Contact Enquiry</h2>
+                      <span className="text-sm text-gray-500">#{viewEnquiry.id?.slice(-6) || 'ID'}</span>
+                    </div>
+                    <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+                      <div className="flex items-center gap-2">
+                        <i className="fas fa-user text-blue-500"></i>
+                        <span className="font-semibold text-gray-700">Name:</span>
+                      </div>
+                      <span className="text-gray-900">{viewEnquiry.name || '-'}</span>
+                      <div className="flex items-center gap-2">
+                        <i className="fas fa-at text-purple-500"></i>
+                        <span className="font-semibold text-gray-700">Email:</span>
+                      </div>
+                      <span className="text-gray-900">{viewEnquiry.email || '-'}</span>
+                      <div className="flex items-center gap-2">
+                        <i className="fas fa-phone text-pink-500"></i>
+                        <span className="font-semibold text-gray-700">Phone:</span>
+                      </div>
+                      <span className="text-gray-900">{viewEnquiry.phone || '-'}</span>
+                      <div className="flex items-center gap-2">
+                        <i className="fas fa-calendar-alt text-yellow-500"></i>
+                        <span className="font-semibold text-gray-700">Date:</span>
+                      </div>
+                      <span className="text-gray-900">{viewEnquiry.created_at ? (typeof viewEnquiry.created_at === 'object' && viewEnquiry.created_at.toDate ? viewEnquiry.created_at.toDate().toLocaleString() : new Date(viewEnquiry.created_at).toLocaleString()) : '-'}</span>
+                    </div>
+                    <div className="w-full mt-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <i className="fas fa-comment-dots text-green-500"></i>
+                        <span className="font-semibold text-gray-700">Message:</span>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-4 text-gray-800 shadow-inner min-h-[60px] whitespace-pre-line">
+                        {viewEnquiry.message || '-'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <style>{`
+                  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                  .animate-fadeIn { animation: fadeIn 0.3s ease; }
+                  @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+                  .animate-slideUp { animation: slideUp 0.4s cubic-bezier(.4,2,.3,1); }
+                `}</style>
+              </div>
+            )}
           </div>
         )}
       </main>

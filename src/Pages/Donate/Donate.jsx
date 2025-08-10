@@ -9,6 +9,7 @@ const Donate = () => {
   // Authentication state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [donorEmail, setDonorEmail] = useState('');
   const { openAuthModal } = useAuthModal();
   const [loginPromptModal, setLoginPromptModal] = useState(false);
 
@@ -17,7 +18,9 @@ const Donate = () => {
     const authenticated = isAuthenticated();
     setIsLoggedIn(authenticated);
     if (authenticated) {
-      setUserEmail(getUserEmail());
+      const email = getUserEmail();
+      setUserEmail(email);
+      setDonorEmail(email);
     }
   }, []);
 
@@ -28,6 +31,7 @@ const Donate = () => {
   const [panAlpha, setPanAlpha] = useState("");
   const [panNum, setPanNum] = useState("");
   const [panLast, setPanLast] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleAlphaChange = (e) => {
     const val = e.target.value.toUpperCase().replace(/[^A-Z]/g, "");
@@ -72,9 +76,16 @@ const Donate = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Prevent double submission
+    if (isLoading) return;
+    
+    // Start loading immediately
+    setIsLoading(true);
+    
     // Check if user is logged in
     if (!isLoggedIn) {
       setLoginPromptModal(true);
+      setIsLoading(false);
       return;
     }
     
@@ -90,6 +101,7 @@ const Donate = () => {
     const res = await loadRazorpayScript();
     if (!res) {
       alert('Razorpay SDK failed to load. Are you online?');
+      setIsLoading(false);
       return;
     }
 
@@ -113,6 +125,7 @@ const Donate = () => {
       if (!orderData.order) throw new Error('Order creation failed');
     } catch (err) {
       alert('Failed to create payment order. Please try again.');
+      setIsLoading(false);
       return;
     }
 
@@ -149,6 +162,7 @@ const Donate = () => {
         } catch (err) {
           // Optionally handle error
         }
+        setIsLoading(false);
         setShowThankYou(true);
       },
       prefill: {
@@ -168,11 +182,13 @@ const Donate = () => {
         ondismiss: async function () {
           // Optionally handle payment cancelled
           // You can also send a failed/pending status to backend here if needed
+          setIsLoading(false);
         },
       },
     };
     const rzp = new window.Razorpay(options);
     rzp.open();
+    // Loading will be set to false when payment completes or is dismissed
   };
 
   return (
@@ -205,11 +221,16 @@ const Donate = () => {
                     </label>
                   </div>
                   <div className="relative">
-                    <input type="email" name="donor_email" required
-                      value={isLoggedIn ? userEmail : undefined}
+                    <input
+                      type="email"
+                      name="donor_email"
+                      required
+                      value={donorEmail}
+                      onChange={e => !isLoggedIn && setDonorEmail(e.target.value)}
                       readOnly={isLoggedIn}
                       className={`peer w-full px-3 pt-5 pb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-clr ${isLoggedIn ? 'bg-gray-50 cursor-not-allowed' : ''}`}
-                      placeholder=" " />
+                      placeholder=" "
+                    />
                     <label className="absolute text-sm text-gray-500 left-3 top-2 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm transition-all">
                       Email Address <span className="text-red-500">*</span>
                     </label>
@@ -291,8 +312,23 @@ const Donate = () => {
                   <div></div>
                   <div>
                     <button type="submit"
-                      className="w-full bg-secondary text-white py-2 px-4 rounded-md hover:bg-green-800 transition">
-                      Proceed to Donate
+                      disabled={isLoading}
+                      className={`w-full py-3 px-4 rounded-md transition duration-300 flex items-center justify-center font-semibold ${
+                        isLoading 
+                          ? 'bg-gray-400 cursor-not-allowed text-gray-200' 
+                          : 'bg-secondary text-white hover:bg-green-800'
+                      }`}>
+                      {isLoading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-heart mr-2"></i>
+                          Proceed to Donate
+                        </>
+                      )}
                     </button>
                   </div>
                 </form>
@@ -328,6 +364,29 @@ const Donate = () => {
             </div>
           </div>
         </section>
+
+        {/* Loading Overlay */}
+        {isLoading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm mx-4 text-center">
+              <div className="relative mb-6">
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-green-200 border-t-green-600 mx-auto"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <i className="fas fa-heart text-green-600 text-xl"></i>
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Processing Your Donation</h3>
+              <p className="text-gray-600 mb-4">
+                Please wait while we prepare your secure payment...
+              </p>
+              <div className="flex justify-center space-x-1">
+                <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Thank You Modal */}
         {showThankYou && (

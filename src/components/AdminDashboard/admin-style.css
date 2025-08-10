@@ -153,6 +153,14 @@ body {
   border: none;
   position: relative;
   overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .btn::before {
@@ -168,6 +176,85 @@ body {
 
 .btn:hover::before {
   left: 100%;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Primary Button - Export */
+.btn-primary {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #2563eb 100%);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+/* Secondary Button - Refresh */
+.btn-secondary {
+  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 50%, #d1d5db 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #4b5563 0%, #6b7280 50%, #9ca3af 100%);
+  box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+}
+
+/* Success Button Alternative */
+.btn-success {
+  background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+}
+
+/* Button Group Styling */
+.btn-group {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .btn-group {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Action Button Container */
+.action-buttons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
 }
 
 /* Custom scrollbar for sidebar */
