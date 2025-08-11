@@ -132,7 +132,7 @@ const Navbar = () => {
               onClick={handleAuthModalOpen}
               className="nav-link flex items-center bg-green-700 hover:bg-green-800 text-white font-semibold px-4 py-2 rounded-lg transition ml-2 border-none cursor-pointer"
             >
-              <i className="fas fa-sign-in-alt mr-1"></i> Signup/Signin
+              <i className="fas fa-sign-in-alt mr-1"></i>Signin
             </button>
           )}
         </li>

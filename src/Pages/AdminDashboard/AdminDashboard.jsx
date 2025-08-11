@@ -537,23 +537,31 @@ useEffect(() => {
                     )}
                     {sortedDonations
                       .slice((donationPage - 1) * PAGE_SIZE, donationPage * PAGE_SIZE)
-                      .map(donation => (
-                      (() => {
-                        console.log("Render donation row:", donation);
+                      .map(donation => {
+                        // Helper to highlight search term
+                        const highlight = (text) => {
+                          if (!searchTerm.trim()) return text;
+                          const term = searchTerm.trim();
+                          const regex = new RegExp(`(${term})`, 'gi');
+                          return String(text).split(regex).map((part, i) =>
+                            regex.test(part)
+                              ? <span key={i} style={{ background: '#ffe066', fontWeight: 'bold' }}>{part}</span>
+                              : part
+                          );
+                        };
                         return (
                           <tr key={donation.id}>
-                            <td className="px-6 py-4 whitespace-nowrap">{donation.donor_name || donation.donor || "Anonymous"}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">{donation.donor_email || "-"}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">{donation.donor_mobile || "-"}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">{donation.pan || "-"}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">{donation.donor_aadhar || "-"}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{highlight(donation.donor_name || donation.donor || "Anonymous")}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{highlight(donation.donor_email || "-")}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{highlight(donation.donor_mobile || "-")}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{highlight(donation.pan || "-")}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{highlight(donation.donor_aadhar || "-")}</td>
                             <td className="px-6 py-4 whitespace-nowrap font-bold text-green-600">₹{donation.amount}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{donation.status}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{donation.createdAt ? (typeof donation.createdAt === "object" && donation.createdAt.toDate ? donation.createdAt.toDate().toLocaleString() : new Date(donation.createdAt).toLocaleString()) : "-"}</td>
                           </tr>
                         );
-                      })()
-                    ))}
+                      })}
                   </tbody>
                 </table>
               </div>

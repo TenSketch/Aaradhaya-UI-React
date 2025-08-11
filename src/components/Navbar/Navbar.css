@@ -12,6 +12,7 @@
 }
 .navbar .nav-links {
   padding: 20px;
+  width: 100%;
   text-align: center;
   transition: all 0.3s ease-in-out;
 }
