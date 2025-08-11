@@ -65,13 +65,17 @@ const Donate = () => {
     setPanLast(val);
   };
   const [showThankYou, setShowThankYou] = useState(false);
-    // Function to reset form fields and related state
-    const resetForm = () => {
-      setPanAlpha("");
-      setPanNum("");
-      setPanLast("");
-      setDonorEmail(isLoggedIn ? userEmail : "");
-    };
+  // Address state
+  const [address, setAddress] = useState("");
+
+  // Function to reset form fields and related state
+  const resetForm = () => {
+    setPanAlpha("");
+    setPanNum("");
+    setPanLast("");
+    setDonorEmail(isLoggedIn ? userEmail : "");
+    setAddress("");
+  };
 
   // Razorpay script loader
   const loadRazorpayScript = () => {
@@ -117,6 +121,7 @@ const Donate = () => {
     const pan = `${panAlpha}${panNum}${panLast}`;
     const amount = form.amount.value;
     const donor_message = form.donor_message.value;
+    const donor_address = form.donor_address ? form.donor_address.value : address;
 
     const res = await loadRazorpayScript();
     if (!res) {
@@ -128,7 +133,7 @@ const Donate = () => {
     // 1. Create order from backend
     let orderData;
     try {
-  const orderRes = await fetch('https://backend-beta-seven-41.vercel.app/api/razorpay/order', {
+      const orderRes = await fetch('https://backend-beta-seven-41.vercel.app/api/razorpay/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -139,6 +144,7 @@ const Donate = () => {
           donor_aadhar,
           pan,
           donor_message,
+          donor_address,
         }),
       });
       orderData = await orderRes.json();
@@ -175,6 +181,7 @@ const Donate = () => {
                 pan,
                 amount,
                 donor_message,
+                donor_address,
               },
               status: 'success',
             }),
@@ -183,7 +190,7 @@ const Donate = () => {
           // Optionally handle error
         }
         setIsLoading(false);
-    resetForm();
+        resetForm();
         setShowThankYou(true);
       },
       prefill: {
@@ -258,6 +265,19 @@ const Donate = () => {
                     {isLoggedIn && (
                       <small className="text-green-600 text-xs">Using email from your account</small>
                     )}
+                  </div>
+                  <div className="relative">
+                    <textarea
+                      name="donor_address"
+                      rows={2}
+                      required
+                      value={address}
+                      onChange={e => setAddress(e.target.value)}
+                      className="peer w-full px-3 pt-5 pb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-clr"
+                      placeholder=" "></textarea>
+                    <label className="absolute text-sm text-gray-500 left-3 top-2 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm transition-all">
+                      Address <span className="text-red-500">*</span>
+                    </label>
                   </div>
                   <div className="relative">
                     <input type="text" name="donor_aadhar" required pattern="\d{12}" maxLength={12}

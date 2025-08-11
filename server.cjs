@@ -71,7 +71,7 @@ app.post('/api/contact', async (req, res) => {
 app.post('/api/razorpay/order', async (req, res) => {
   console.log('[ORDER] Incoming donation order request:', req.body);
   try {
-    const { amount, donor_name, donor_email, donor_mobile, donor_aadhar, pan, donor_message } = req.body;
+  const { amount, donor_name, donor_email, donor_mobile, donor_aadhar, pan, donor_message, donor_address } = req.body;
     const options = {
       amount: Number(amount) * 100, // paise
       currency: 'INR',
@@ -83,6 +83,7 @@ app.post('/api/razorpay/order', async (req, res) => {
         donor_aadhar,
         pan,
         donor_message,
+      donor_address,
       },
     };
     const order = await razorpay.orders.create(options);
@@ -111,6 +112,7 @@ app.post('/api/razorpay/verify', async (req, res) => {
     const db = admin.firestore();
     const donationDoc = {
       ...donorDetails,
+      donor_address: donorDetails.donor_address,
       razorpay_order_id,
       razorpay_payment_id,
       status,
@@ -119,71 +121,153 @@ app.post('/api/razorpay/verify', async (req, res) => {
     const docRef = await db.collection('donations').add(donationDoc);
     console.log('[VERIFY] Payment verified and stored:', { razorpay_order_id, razorpay_payment_id, status });
 
-    // Send automated email with donation details
+    // Generate receipt number and date
+    const receiptNo = `AAR/${new Date().getFullYear()}/${Date.now()}`;
+    const issueDate = new Date().toLocaleDateString('en-IN');
+    const donationDate = new Date().toLocaleDateString('en-IN');
+
+    // Send automated email with 80G donation receipt
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: donorDetails.donor_email || process.env.DEFAULT_REPLY_TO,
-      subject: 'Thank you for your donation!',
+      subject: '80G Donation Receipt - Thank you for your contribution!',
       html: `
-        <div style="background: #f6f8fa; padding: 40px 0; font-family: 'Segoe UI', Arial, sans-serif;">
-          <table style="max-width: 520px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(20,83,45,0.08); overflow: hidden;">
+        <div style="background: #f6f8fa; padding: 40px 20px; font-family: 'Segoe UI', Arial, sans-serif;">
+          <table style="max-width: 650px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(20,83,45,0.12); overflow: hidden;">
+            
+            <!-- Header -->
             <tr>
-              <td style="background: #14532d; padding: 24px 0; text-align: center;">
-                <img src="https://aaradhyatrust.org/assets/images/logo-Aaradhya_trust.png" alt="Aaradhaya Trust Logo" style="height: 60px; margin-bottom: 8px;" />
-                <h1 style="color: #fff; font-size: 2rem; margin: 0; letter-spacing: 1px;">Aaradhaya Trust</h1>
+              <td style="background: linear-gradient(135deg, #14532d 0%, #166534 100%); padding: 30px 0; text-align: center;">
+                <img src="https://aaradhyatrust.org/assets/images/logo-Aaradhya_trust.png" alt="Aaradhaya Trust Logo" style="height: 70px; margin-bottom: 12px;" />
+                <h1 style="color: #fff; font-size: 2.2rem; margin: 0; letter-spacing: 1px;">Aaradhaya Trust</h1>
+                <p style="color: #e6f4ea; margin: 8px 0 0 0; font-size: 1rem;">Regd. Office: [Complete Address]</p>
+                <p style="color: #e6f4ea; margin: 4px 0 0 0; font-size: 0.9rem;">📞 97910 14236 | 📧 trustaaradhya@gmail.com</p>
+                <p style="color: #e6f4ea; margin: 4px 0 0 0; font-size: 0.9rem; font-weight: bold;">PAN: AAJTA6207E</p>
               </td>
             </tr>
+
+            <!-- Receipt Title -->
             <tr>
-              <td style="padding: 32px 32px 16px 32px;">
-                <h2 style="color: #14532d; font-size: 1.5rem; margin-bottom: 12px;">Thank you for your donation!</h2>
-                <p style="font-size: 1.1rem; color: #333; margin-bottom: 24px;">Dear <b>${donorDetails.donor_name || 'Donor'}</b>,<br>We are deeply grateful for your generous support. Here are your donation details:</p>
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+              <td style="background: #14532d; padding: 15px 0; text-align: center; border-top: 3px solid #fff;">
+                <h2 style="color: #fff; font-size: 1.4rem; margin: 0; font-weight: bold;">DONATION RECEIPT</h2>
+                <p style="color: #e6f4ea; margin: 5px 0 0 0; font-size: 0.95rem;">(For Income Tax Deduction under Section 80G)</p>
+              </td>
+            </tr>
+
+            <!-- Receipt Details -->
+            <tr>
+              <td style="padding: 25px 30px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; padding: 15px; background: #f8fffe; border-radius: 8px; border-left: 4px solid #14532d;">
+                  <div>
+                    <p style="margin: 0; color: #14532d; font-weight: bold;">Receipt No.: ${receiptNo}</p>
+                  </div>
+                  <div>
+                    <p style="margin: 0; color: #14532d; font-weight: bold;">Date of Issue: ${issueDate}</p>
+                  </div>
+                </div>
+
+                <!-- 80G Registration Info -->
+                <div style="background: #e6f4ea; border: 2px solid #14532d; padding: 15px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
+                  <p style="margin: 0; color: #14532d; font-weight: bold; font-size: 1rem;">80G Registration No.: AAJTA6207EF20211</p>
+                  <p style="margin: 5px 0 0 0; color: #14532d; font-size: 0.9rem;">Valid for FY 2021-22 onwards (Subject to renewal)</p>
+                </div>
+
+                <!-- Donor Details -->
+                <h3 style="color: #14532d; font-size: 1.3rem; margin: 0 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #14532d;">DONOR DETAILS</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
                   <tr>
-                    <td style="padding: 8px 0; color: #555;">Amount:</td>
-                    <td style="padding: 8px 0; color: #14532d; font-weight: bold;">₹${donorDetails.amount}</td>
+                    <td style="padding: 8px 0; color: #555; font-weight: 600; width: 35%;">Donor's Full Name:</td>
+                    <td style="padding: 8px 0; color: #333; font-weight: bold;">${donorDetails.donor_name || 'N/A'}</td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0; color: #555;">Razorpay Payment ID:</td>
-                    <td style="padding: 8px 0; color: #333;">${razorpay_payment_id}</td>
+                    <td style="padding: 8px 0; color: #555; font-weight: 600;">Donor's Address:</td>
+                    <td style="padding: 8px 0; color: #333;">${donorDetails.donor_address || 'N/A'}</td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0; color: #555;">Order ID:</td>
-                    <td style="padding: 8px 0; color: #333;">${razorpay_order_id}</td>
+                    <td style="padding: 8px 0; color: #555; font-weight: 600;">Donor's PAN:</td>
+                    <td style="padding: 8px 0; color: #333; font-weight: bold;">${donorDetails.pan || 'N/A'}</td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0; color: #555;">Status:</td>
-                    <td style="padding: 8px 0; color: #333;">${status}</td>
+                    <td style="padding: 8px 0; color: #555; font-weight: 600;">Email ID:</td>
+                    <td style="padding: 8px 0; color: #333;">${donorDetails.donor_email || 'N/A'}</td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0; color: #555;">Email:</td>
-                    <td style="padding: 8px 0; color: #333;">${donorDetails.donor_email || ''}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 8px 0; color: #555;">Mobile:</td>
-                    <td style="padding: 8px 0; color: #333;">${donorDetails.donor_mobile || ''}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 8px 0; color: #555;">Message:</td>
-                    <td style="padding: 8px 0; color: #333;">${donorDetails.donor_message || '-'}</td>
+                    <td style="padding: 8px 0; color: #555; font-weight: 600;">Mobile Number:</td>
+                    <td style="padding: 8px 0; color: #333;">${donorDetails.donor_mobile || 'N/A'}</td>
                   </tr>
                 </table>
-                <div style="background: #e6f4ea; border-left: 4px solid #14532d; padding: 16px 20px; border-radius: 6px; margin-bottom: 24px; color: #14532d;">
-                  <b>We appreciate your support!</b><br>
-                  Your contribution will help us make a positive impact in the lives of many.<br>
-                  <span style="display:block; margin-top:10px; color:#14532d; font-weight:bold;">All donations made are eligible for tax exemptions under Section 80G.</span>
-                  <span style="display:block; margin-top:6px; color:#14532d; font-weight:bold;">Registration No.: AAJTA6207EF20211</span>
-                  <span style="display:block; margin-top:6px; color:#14532d;">Read our <a href="https://www.aaradhyatrust.org/terms-and-conditions" style="color:#14532d; text-decoration:underline;" target="_blank">Terms & Conditions</a>.</span>
+
+                <!-- Donation Details -->
+                <h3 style="color: #14532d; font-size: 1.3rem; margin: 0 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #14532d;">DONATION DETAILS</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #555; font-weight: 600; width: 35%;">Donation Amount (₹):</td>
+                    <td style="padding: 8px 0; color: #14532d; font-weight: bold; font-size: 1.1rem;">₹${donorDetails.amount}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #555; font-weight: 600;">Mode of Payment:</td>
+                    <td style="padding: 8px 0; color: #333;">Online Payment (Razorpay)</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #555; font-weight: 600;">Date of Donation:</td>
+                    <td style="padding: 8px 0; color: #333;">${donationDate}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #555; font-weight: 600;">Payment ID:</td>
+                    <td style="padding: 8px 0; color: #333; font-family: monospace;">${razorpay_payment_id}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #555; font-weight: 600;">Order ID:</td>
+                    <td style="padding: 8px 0; color: #333; font-family: monospace;">${razorpay_order_id}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #555; font-weight: 600;">Purpose:</td>
+                    <td style="padding: 8px 0; color: #333;">General Corpus Fund</td>
+                  </tr>
+                  ${donorDetails.donor_message ? `
+                  <tr>
+                    <td style="padding: 8px 0; color: #555; font-weight: 600;">Message:</td>
+                    <td style="padding: 8px 0; color: #333;">${donorDetails.donor_message}</td>
+                  </tr>
+                  ` : ''}
+                </table>
+
+                <!-- Tax Exemption Declaration -->
+                <div style="background: #f0f9f4; border: 2px solid #14532d; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                  <h3 style="color: #14532d; font-size: 1.2rem; margin: 0 0 12px 0;">TAX EXEMPTION DECLARATION</h3>
+                  <p style="margin: 0 0 12px 0; color: #333; line-height: 1.6; text-align: justify;">
+                    This is to certify that the above-mentioned donation is eligible for deduction under Section 80G of the Income Tax Act, 1961, as per the rules and regulations applicable to our organization, <strong>Aaradhaya Trust</strong>, which is registered under Section 80G of the Income Tax Act, 1961 vide Registration No. <strong>AAJTA6207EF20211</strong>.
+                  </p>
+                  <p style="margin: 0; color: #dc2626; font-size: 0.9rem; font-weight: 600;">
+                    <strong>Note:</strong> As per the Income Tax Act, cash donations exceeding ₹2,000 are not eligible for deduction under Section 80G. This donation was made through digital payment mode and is eligible for tax benefits.
+                  </p>
                 </div>
-                <p style="font-size: 1rem; color: #555; margin-bottom: 0;">If you have any questions, feel free to contact us:</p>
-                <p style="font-size: 1rem; color: #14532d; margin: 8px 0 0 0;">
-                  📞 <a href="tel:+919360934646" style="color: #14532d; text-decoration: underline;">97910 14236</a><br>
-                  📧 <a href="mailto:trustaaradhya@gmail.com" style="color: #14532d; text-decoration: underline;">trustaaradhya@gmail.com</a>
-                </p>
+
+                <!-- Authorized Signature -->
+                <div style="text-align: right; margin-top: 30px;">
+                  <div style="border-top: 1px solid #14532d; padding-top: 15px; display: inline-block; min-width: 200px;">
+                    <p style="margin: 0; color: #14532d; font-weight: bold;">Authorized Signatory</p>
+                    <p style="margin: 5px 0 0 0; color: #555; font-size: 0.9rem;">[Name & Designation]</p>
+                    <p style="margin: 5px 0 0 0; color: #555; font-size: 0.9rem;">(Seal of the Organization)</p>
+                  </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div style="background: #e6f4ea; padding: 20px; border-radius: 8px; margin-top: 25px; text-align: center;">
+                  <p style="margin: 0 0 8px 0; color: #14532d; font-weight: bold;">For any queries, please contact us:</p>
+                  <p style="margin: 0; color: #14532d;">
+                    📞 <a href="tel:+919791014236" style="color: #14532d; text-decoration: underline;">97910 14236</a> | 
+                    📧 <a href="mailto:trustaaradhya@gmail.com" style="color: #14532d; text-decoration: underline;">trustaaradhya@gmail.com</a>
+                  </p>
+                </div>
               </td>
             </tr>
+
+            <!-- Footer -->
             <tr>
-              <td style="background: #14532d; text-align: center; padding: 18px 0;">
-                <span style="color: #fff; font-size: 1rem;">&copy; ${new Date().getFullYear()} Aaradhaya Trust. All rights reserved.</span>
+              <td style="background: #14532d; text-align: center; padding: 20px 0;">
+                <p style="color: #fff; margin: 0; font-size: 0.9rem;">&copy; ${new Date().getFullYear()} Aaradhaya Trust. All rights reserved.</p>
+                <p style="color: #e6f4ea; margin: 5px 0 0 0; font-size: 0.8rem;">This is a computer-generated receipt and does not require a physical signature.</p>
               </td>
             </tr>
           </table>
