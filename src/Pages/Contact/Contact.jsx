@@ -57,9 +57,9 @@ const Contact = () => {
   };
 
   return (
-    <div className="contact-page">
+    <div>
       <Navbar />
-      <main className="pt-20">
+      <main className="contact-page pt-20">
         <section className="py-12 bg-white contact-form-section bg-gradient-to-br">
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 gap-10 items-center">
