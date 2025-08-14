@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
-import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, signOut } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 import 'react-toastify/dist/ReactToastify.css';
 import './AuthModal.css';
@@ -8,6 +8,7 @@ import './AuthModal.css';
 const AuthModal = ({ isOpen, onClose }) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showResendEmail, setShowResendEmail] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -20,6 +21,40 @@ const AuthModal = ({ isOpen, onClose }) => {
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const resendVerificationEmail = async () => {
+    setLoading(true);
+    try {
+      // Try to sign in the user first to get their user object
+      const userCredential = await signInWithEmailAndPassword(
+        auth, 
+        formData.email, 
+        formData.password
+      );
+      const user = userCredential.user;
+      
+      if (user.emailVerified) {
+        toast.success('Your email is already verified! You can sign in.');
+        setLoading(false);
+        return;
+      }
+      
+      const actionCodeSettings = {
+        url: window.location.origin,
+        handleCodeInApp: false,
+      };
+      
+      await sendEmailVerification(user, actionCodeSettings);
+      await signOut(auth); // Sign out after sending email
+      
+      toast.success('Verification email sent! Please check your inbox and spam folder.');
+      console.log('Resend verification email successful for:', user.email);
+    } catch (error) {
+      console.error('Error resending verification email:', error);
+      toast.error('Failed to resend verification email. Please try again.');
+    }
+    setLoading(false);
   };
 
   const handleGoogleLogin = async () => {
@@ -69,22 +104,48 @@ const AuthModal = ({ isOpen, onClose }) => {
           formData.email, 
           formData.password
         );
-        
         const user = userCredential.user;
+        // Send email verification
+        try {
+          console.log('Attempting to send verification email to:', user.email);
+          console.log('User object:', user);
+          console.log('Auth domain:', auth.config.authDomain);
+          
+          const actionCodeSettings = {
+            url: window.location.origin,
+            handleCodeInApp: false,
+          };
+          
+          await sendEmailVerification(user, actionCodeSettings);
+          console.log('Verification email sent successfully with action code settings.');
+          console.log('Email should be sent from: noreply@adhaya-trust.firebaseapp.com');
+          console.log('Check your spam/junk folder and email filters');
+          console.log('Action code settings:', actionCodeSettings);
+        } catch (emailError) {
+          console.error('Error sending verification email:', emailError);
+          console.error('Error code:', emailError.code);
+          console.error('Error message:', emailError.message);
+          toast.error('Failed to send verification email. Please try again.');
+        }
+        
+        // Sign out the user after creating account so they must login after verification
+        try {
+          await signOut(auth);
+          console.log('User signed out after account creation');
+        } catch (signOutError) {
+          console.error('Error signing out after account creation:', signOutError);
+        }
+        
         const userData = {
           uid: user.uid,
           name: formData.name,
-          email: user.email
+          email: user.email,
+          emailVerified: user.emailVerified
         };
-        
-        localStorage.setItem('user_token', user.accessToken || 'firebase_auth_token');
-        localStorage.setItem('user_data', JSON.stringify(userData));
-        
-        toast.success('Account created successfully!');
-        setTimeout(() => {
-          onClose();
-          window.location.reload();
-        }, 1500);
+  toast.success('Account created! Please verify your email before logging in.');
+  setLoading(false);
+  setIsSignUp(false); 
+  setFormData({ name: '', email: '', password: '', confirmPassword: '' });
       } else {
         // Handle Firebase signin
         const userCredential = await signInWithEmailAndPassword(
@@ -92,17 +153,28 @@ const AuthModal = ({ isOpen, onClose }) => {
           formData.email, 
           formData.password
         );
-        
         const user = userCredential.user;
+        
+        // Reload user to get the latest verification status
+        await user.reload();
+        console.log('User email verification status:', user.emailVerified);
+        
+        if (!user.emailVerified) {
+          toast.error('Please verify your email before signing in. Check your inbox and spam folder.');
+          setShowResendEmail(true);
+          // Sign out the unverified user
+          await signOut(auth);
+          setLoading(false);
+          return;
+        }
         const userData = {
           uid: user.uid,
           name: user.displayName || 'User',
-          email: user.email
+          email: user.email,
+          emailVerified: user.emailVerified
         };
-        
         localStorage.setItem('user_token', user.accessToken || 'firebase_auth_token');
         localStorage.setItem('user_data', JSON.stringify(userData));
-        
         toast.success('Signed in successfully!');
         setTimeout(() => {
           onClose();
@@ -132,6 +204,7 @@ const AuthModal = ({ isOpen, onClose }) => {
 
   const toggleMode = () => {
     setIsSignUp(!isSignUp);
+    setShowResendEmail(false);
     setFormData({ name: '', email: '', password: '', confirmPassword: '' });
   };
 
@@ -227,6 +300,38 @@ const AuthModal = ({ isOpen, onClose }) => {
                 )}
               </button>
             </form>
+
+            {showResendEmail && !isSignUp && (
+              <div className="resend-email-section" style={{ marginTop: '10px', textAlign: 'center' }}>
+                <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
+                  Didn't receive the verification email?
+                </p>
+                <button
+                  type="button"
+                  onClick={resendVerificationEmail}
+                  disabled={loading}
+                  className="auth-submit-btn"
+                  style={{ 
+                    backgroundColor: '#ff6b35', 
+                    fontSize: '14px', 
+                    padding: '8px 16px',
+                    marginBottom: '10px'
+                  }}
+                >
+                  {loading ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin mr-2"></i>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-envelope mr-2"></i>
+                      Resend Verification Email
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
 
             <div className="auth-divider">
               <span>or</span>
