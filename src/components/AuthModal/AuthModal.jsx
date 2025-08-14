@@ -49,9 +49,7 @@ const AuthModal = ({ isOpen, onClose }) => {
       await signOut(auth); // Sign out after sending email
       
       toast.success('Verification email sent! Please check your inbox and spam folder.');
-      console.log('Resend verification email successful for:', user.email);
     } catch (error) {
-      console.error('Error resending verification email:', error);
       toast.error('Failed to resend verification email. Please try again.');
     }
     setLoading(false);
@@ -107,9 +105,6 @@ const AuthModal = ({ isOpen, onClose }) => {
         const user = userCredential.user;
         // Send email verification
         try {
-          console.log('Attempting to send verification email to:', user.email);
-          console.log('User object:', user);
-          console.log('Auth domain:', auth.config.authDomain);
           
           const actionCodeSettings = {
             url: window.location.origin,
@@ -117,23 +112,14 @@ const AuthModal = ({ isOpen, onClose }) => {
           };
           
           await sendEmailVerification(user, actionCodeSettings);
-          console.log('Verification email sent successfully with action code settings.');
-          console.log('Email should be sent from: noreply@adhaya-trust.firebaseapp.com');
-          console.log('Check your spam/junk folder and email filters');
-          console.log('Action code settings:', actionCodeSettings);
         } catch (emailError) {
-          console.error('Error sending verification email:', emailError);
-          console.error('Error code:', emailError.code);
-          console.error('Error message:', emailError.message);
           toast.error('Failed to send verification email. Please try again.');
         }
         
         // Sign out the user after creating account so they must login after verification
         try {
           await signOut(auth);
-          console.log('User signed out after account creation');
         } catch (signOutError) {
-          console.error('Error signing out after account creation:', signOutError);
         }
         
         const userData = {
@@ -157,7 +143,6 @@ const AuthModal = ({ isOpen, onClose }) => {
         
         // Reload user to get the latest verification status
         await user.reload();
-        console.log('User email verification status:', user.emailVerified);
         
         if (!user.emailVerified) {
           toast.error('Please verify your email before signing in. Check your inbox and spam folder.');
@@ -182,7 +167,6 @@ const AuthModal = ({ isOpen, onClose }) => {
         }, 1500);
       }
     } catch (error) {
-      console.error('Authentication error:', error);
       let errorMessage = 'Authentication failed. Please try again.';
       
       if (error.code === 'auth/email-already-in-use') {
