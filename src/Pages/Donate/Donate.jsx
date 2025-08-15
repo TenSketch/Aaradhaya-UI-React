@@ -444,6 +444,9 @@ const Donate = () => {
                 📞 <a href="tel:+919360934646" className="text-blue-600 underline block">97910 14236 </a>
                 📧 <a href="mailto:trustaaradhya@gmail.com" className="text-blue-600 underline">trustaaradhya@gmail.com</a>
               </p>
+              <p className="text-gray-700 mt-3">
+                A confirmation email with your donation receipt has been sent to the address you provided — please check your inbox (and spam/promotions folder).
+              </p>
               <button onClick={() => setShowThankYou(false)} className="inline-block mt-5 bg-secondary-clr text-white px-6 py-2 rounded-full hover:bg-green-800 transition">
                 Go Back to Home
               </button>
