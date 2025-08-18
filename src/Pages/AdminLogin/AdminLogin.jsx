@@ -8,6 +8,7 @@ import "./AdminLogin.css";
 const AdminLogin = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
@@ -92,7 +93,7 @@ const AdminLogin = () => {
             <div className="input-group flex items-center border rounded-lg px-3 py-2 bg-gray-50 mb-2">
               <i className="fas fa-lock text-gray-400 mr-2"></i>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
                 required
@@ -100,6 +101,15 @@ const AdminLogin = () => {
                 placeholder="Password"
                 autoComplete="current-password"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((s) => !s)}
+                className="ml-2 text-gray-500 p-1 focus:outline-none"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+              </button>
             </div>
             {/* Login Button */}
             <button
