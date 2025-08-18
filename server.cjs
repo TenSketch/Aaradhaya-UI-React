@@ -121,10 +121,57 @@ app.post('/api/razorpay/verify', async (req, res) => {
     const docRef = await db.collection('donations').add(donationDoc);
     console.log('[VERIFY] Payment verified and stored:', { razorpay_order_id, razorpay_payment_id, status });
 
-    // Generate receipt number and date
-    const receiptNo = `AAR/${new Date().getFullYear()}/${Date.now()}`;
-    const issueDate = new Date().toLocaleDateString('en-IN');
-    const donationDate = new Date().toLocaleDateString('en-IN');
+    // Generate receipt number and date using pattern: AT_DR-<FY>_<seq>_<DONOR>
+    // Example: AT_DR-25-26_01_JOHNDOE
+    const now = new Date();
+    const donationDate = now.toLocaleDateString('en-IN');
+    const issueDate = donationDate;
+
+    // Compute financial year short (e.g., 25-26 for FY 2025-26)
+    const fyShort = (() => {
+      const year = now.getFullYear();
+      const month = now.getMonth(); // 0-indexed, Apr = 3
+      const startYear = month >= 3 ? year : year - 1;
+      const a = String(startYear % 100).padStart(2, '0');
+      const b = String((startYear + 1) % 100).padStart(2, '0');
+      return `${a}-${b}`;
+    })();
+
+    // Use a Firestore counter to create a sequential number per financial year
+    const countersRef = db.collection('counters').doc('receipts');
+    let seq = 1;
+    try {
+      await db.runTransaction(async (t) => {
+        const doc = await t.get(countersRef);
+        const data = doc.exists ? doc.data() : {};
+        const current = data && data[fyShort] ? Number(data[fyShort]) : 0;
+        const next = current + 1;
+        t.set(countersRef, { [fyShort]: next }, { merge: true });
+        seq = next;
+      });
+    } catch (err) {
+      console.error('[RECEIPT] Failed to increment receipt counter, falling back to timestamp seq', err);
+      // fallback to a pseudo-sequence using timestamp
+      seq = Number(String(Date.now()).slice(-4));
+    }
+
+    const seqStr = String(seq).padStart(2, '0');
+    // Sanitize donor name for inclusion (uppercase, alnum only, trimmed to 20 chars)
+    let donorNamePart = '';
+    if (donorDetails && donorDetails.donor_name) {
+      donorNamePart = String(donorDetails.donor_name || '')
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, '')
+        .slice(0, 20);
+    }
+    const receiptNo = `AT_DR-${fyShort}_${seqStr}${donorNamePart ? `_${donorNamePart}` : ''}`;
+
+    // Store receipt number and issue date on the donation document
+    try {
+      await docRef.update({ receiptNo, issueDate });
+    } catch (err) {
+      console.error('[RECEIPT] Failed to update donation doc with receipt info:', err);
+    }
 
     // Send automated email with 80G donation receipt
     const mailOptions = {
@@ -151,6 +198,14 @@ app.post('/api/razorpay/verify', async (req, res) => {
               <td style="background: #14532d; padding: 15px 0; text-align: center; border-top: 3px solid #fff;">
                 <h2 style="color: #fff; font-size: 1.4rem; margin: 0; font-weight: bold;">DONATION RECEIPT</h2>
                 <p style="color: #e6f4ea; margin: 5px 0 0 0; font-size: 0.95rem;">(For Income Tax Deduction under Section 80G)</p>
+              </td>
+            </tr>
+
+            <!-- Personal Greeting -->
+            <tr>
+              <td style="padding: 18px 30px 0 30px;">
+                <p style="margin:0 0 10px 0; color:#333;">Dear ${donorDetails.donor_name || 'Donor'},</p>
+                <p style="margin:0 0 8px 0; color:#333; line-height:1.6;">Thank you so much for your generous donation to <strong>Aaradhaya Trust</strong>. Your contribution will directly support and help us continue building the SPB Memorial &amp; Museum project. We are so grateful for your support!</p>
               </td>
             </tr>
 
@@ -244,11 +299,11 @@ app.post('/api/razorpay/verify', async (req, res) => {
                 </div>
 
                 <!-- Authorized Signature -->
-                <div style="text-align: right; margin-top: 30px;">
-                  <div style="border-top: 1px solid #14532d; padding-top: 15px; display: inline-block; min-width: 200px;">
-                    <p style="margin: 0; color: #14532d; font-weight: bold;">Authorized Signatory</p>
-                    <p style="margin: 5px 0 0 0; color: #555; font-size: 0.9rem;">[Name & Designation]</p>
-                    <p style="margin: 5px 0 0 0; color: #555; font-size: 0.9rem;">(Seal of the Organization)</p>
+                <div style="margin-top: 20px;">
+                  <div style="margin-bottom: 14px;">
+                    <p style="margin: 0 0 6px 0; color: #14532d; font-weight: 700;">Donation received with thanks from</p>
+                    <p style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #000;">SP Charan</p>
+                    <p style="margin: 3px 0 0 0; color: #555;">Trustee | Aaradhya Charitable Trust</p>
                   </div>
                 </div>
 
