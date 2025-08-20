@@ -226,7 +226,7 @@ const Donate = () => {
       <Navbar />
       <main className="pt-20">
         <section className="py-12 bg-white donate-form-section bg-gradient-to-br">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 md:max-w-[80%]">
             <div className="grid md:grid-cols-2 gap-10 items-center">
               <div className="text-center">
                 <div className="mb-8 text-left bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-xl border-l-4 border-gold shadow-sm">
