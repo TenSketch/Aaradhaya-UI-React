@@ -52,13 +52,13 @@ const Navbar = () => {
 
   return (
     <nav className="navbar fixed top-0 z-50 transition-all mx-auto px-5 py-3 flex items-center justify-between">
-      <div className="navbar-brand flex-auto">
+      <div className="navbar-brand flex-shrink-0">
         <img src="/assets/images/logo-Aaradhya_trust.png" className="logo" alt="logo-Aaradhya_trust" />
       </div>
       <ul
         id="menu"
         className={
-          'nav-links flex flex-col md:flex-row space-y-10 md:space-y-0 md:space-x-6 justify-center items-center' +
+          'nav-links flex flex-col items-center justify-between md:flex-row md:space-y-0 space-y-10' +
           (menuOpen ? ' active' : '')
         }
       >
@@ -137,7 +137,7 @@ const Navbar = () => {
           )}
         </li>
       </ul>
-      <button id="menu-toggle" className="flex-auto lg:hidden" onClick={handleToggle} aria-label="Toggle menu">
+  <button id="menu-toggle" className="flex-shrink-0 lg:hidden" onClick={handleToggle} aria-label="Toggle menu">
         <i className="fa-brands fa-pagelines fa-3x"></i>
       </button>
       

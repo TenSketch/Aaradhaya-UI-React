@@ -187,7 +187,7 @@ app.post('/api/razorpay/verify', async (req, res) => {
               <td style="background: linear-gradient(135deg, #14532d 0%, #166534 100%); padding: 30px 0; text-align: center;">
                 <img src="https://aaradhyatrust.org/assets/images/logo-Aaradhya_trust.png" alt="Aaradhaya Trust Logo" style="height: 70px; margin-bottom: 12px;" />
                 <h1 style="color: #fff; font-size: 2.2rem; margin: 0; letter-spacing: 1px;">Aaradhaya Trust</h1>
-                <p style="color: #e6f4ea; margin: 8px 0 0 0; font-size: 1rem;">Regd. Office: [Complete Address]</p>
+                <p style="color: #e6f4ea; margin: 8px 0 0 0; font-size: 1rem;">Regd. Office: Old No. 16, New No. 41, Kamdar Nagar, Nungambakkam, Chennai, Tamil Nadu - 600034</p>
                 <p style="color: #e6f4ea; margin: 4px 0 0 0; font-size: 0.9rem;">📞 97910 14236 | 📧 trustaaradhya@gmail.com</p>
                 <p style="color: #e6f4ea; margin: 4px 0 0 0; font-size: 0.9rem; font-weight: bold;">PAN: AAJTA6207E</p>
               </td>
@@ -212,8 +212,8 @@ app.post('/api/razorpay/verify', async (req, res) => {
             <!-- Receipt Details -->
             <tr>
               <td style="padding: 25px 30px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; padding: 15px; background: #f8fffe; border-radius: 8px; border-left: 4px solid #14532d;">
-                  <div>
+                <div style="display: block; margin-bottom: 20px; padding: 15px; background: #f8fffe; border-radius: 8px; border-left: 4px solid #14532d;">
+                  <div style="margin-bottom: 8px;">
                     <p style="margin: 0; color: #14532d; font-weight: bold;">Receipt No.: ${receiptNo}</p>
                   </div>
                   <div>
@@ -224,7 +224,7 @@ app.post('/api/razorpay/verify', async (req, res) => {
                 <!-- 80G Registration Info -->
                 <div style="background: #e6f4ea; border: 2px solid #14532d; padding: 15px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
                   <p style="margin: 0; color: #14532d; font-weight: bold; font-size: 1rem;">80G Registration No.: AAJTA6207EF20211</p>
-                  <p style="margin: 5px 0 0 0; color: #14532d; font-size: 0.9rem;">Valid for FY 2021-22 onwards (Subject to renewal)</p>
+                  <p style="margin: 5px 0 0 0; color: #14532d; font-size: 0.9rem;">Valid for FY 2021-22 onwards</p>
                 </div>
 
                 <!-- Donor Details -->
@@ -241,6 +241,10 @@ app.post('/api/razorpay/verify', async (req, res) => {
                   <tr>
                     <td style="padding: 8px 0; color: #555; font-weight: 600;">Donor's PAN:</td>
                     <td style="padding: 8px 0; color: #333; font-weight: bold;">${donorDetails.pan || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #555; font-weight: 600;">Donor's Aadhar:</td>
+                    <td style="padding: 8px 0; color: #333;">${donorDetails.donor_aadhar || 'N/A'}</td>
                   </tr>
                   <tr>
                     <td style="padding: 8px 0; color: #555; font-weight: 600;">Email ID:</td>

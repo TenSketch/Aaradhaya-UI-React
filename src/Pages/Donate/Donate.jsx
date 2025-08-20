@@ -227,6 +227,15 @@ const Donate = () => {
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 gap-10 items-center">
               <div className="text-center">
+                <div className="mb-8 text-left bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-xl border-l-4 border-gold shadow-sm">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i className="fas fa-heart text-gold mr-2"></i>
+                    Support the SPB Museum
+                  </h3>
+                  <p className="text-base text-gray-700 leading-relaxed font-medium">
+                    Your contribution directly supports the construction and development of the SPB Museum — a living tribute to <span className="font-semibold text-gray-800">Shri S.P. Balasubrahmanyam</span>. Every donation helps us preserve his legacy, create inspiring exhibits, and build a cultural space that celebrates music, art, and community.
+                  </p>
+                </div>
                 <img src="/assets/images/gallery/SPB_Museum-photos-8.jpg" alt="Donate to Support" className="mx-auto max-w-full rounded-md shadow-md" />
               </div>
               <div className="relative">

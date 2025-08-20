@@ -153,7 +153,7 @@ const AdminDashboard = () => {
     // Optionally, expand after a short delay if needed
     // setTimeout(() => setSidebarCollapsed(false), 300);
   }, [activeTab]);
-  const [statusFilter, setStatusFilter] = useState("");
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
    useEffect(() => {
     const adminToken = localStorage.getItem("admin_token");
@@ -168,28 +168,46 @@ const AdminDashboard = () => {
 
 useEffect(() => {
   let filtered = allDonations;
-  if (statusFilter) {
-    filtered = filtered.filter(donation => donation.status === statusFilter);
-  }
   if (searchTerm.trim()) {
-    const term = searchTerm.trim().toLowerCase();
+    const raw = searchTerm.trim();
+    const term = raw.toLowerCase();
+    const digitTerm = raw.replace(/\D/g, '');
+    const hasDigits = /\d/.test(raw);
     filtered = filtered.filter(donation => {
       const name = (donation.donor || donation.donor_name || "Anonymous").toLowerCase();
       const email = (donation.email || donation.donor_email || "-").toLowerCase();
       const pan = (donation.pan || "-").toLowerCase();
-      return name.includes(term) || email.includes(term) || pan.includes(term);
+      const phone = String(donation.donor_mobile || donation.phone || "-");
+      const aadhar = String(donation.donor_aadhar || donation.aadhar || "-");
+  const amount = String(donation.amount || "");
+      const dateStr = donation.createdAt
+        ? (typeof donation.createdAt === "object" && donation.createdAt.toDate ? donation.createdAt.toDate().toLocaleString() : new Date(donation.createdAt).toLocaleString())
+        : "-";
+
+      // Textual matches (name/email/pan/date)
+  const textMatch = name.includes(term) || email.includes(term) || pan.includes(term) || dateStr.toLowerCase().includes(term) || amount.toLowerCase().includes(term);
+
+      // Numeric matches: normalize digits and check includes (handles formatted phone/aadhar/date)
+      const numericMatch = hasDigits && digitTerm && (
+        phone.replace(/\D/g, '').includes(digitTerm) ||
+        aadhar.replace(/\D/g, '').includes(digitTerm) ||
+        amount.replace(/\D/g, '').includes(digitTerm) ||
+        dateStr.replace(/\D/g, '').includes(digitTerm)
+      );
+
+      return textMatch || numericMatch;
     });
   }
   setSortedDonations(filtered);
   // Reset to first page when filters/search change
   setDonationPage(1);
-}, [statusFilter, searchTerm, allDonations]);
+}, [searchTerm, allDonations]);
 
   // Ensure current pages are within bounds when data changes
   useEffect(() => {
-    const totalDonationPages = Math.max(1, Math.ceil(sortedDonations.length / PAGE_SIZE));
+    const totalDonationPages = Math.max(1, Math.ceil(sortedDonations.length / recordsPerPage));
     if (donationPage > totalDonationPages) setDonationPage(totalDonationPages);
-  }, [sortedDonations, donationPage]);
+  }, [sortedDonations, donationPage, recordsPerPage]);
 
   useEffect(() => {
     const totalContactPages = Math.max(1, Math.ceil(contactEnquiries.length / PAGE_SIZE));
@@ -495,7 +513,7 @@ useEffect(() => {
                 <div className="flex-1">
                   <input
                     type="text"
-                    placeholder="Search by name, email, or PAN..."
+                    placeholder="Search by name, email, amount, or PAN..."
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
@@ -504,13 +522,13 @@ useEffect(() => {
                 <div className="flex gap-2">
                   <select
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    value={statusFilter}
-                    onChange={e => setStatusFilter(e.target.value)}
+                    value={recordsPerPage}
+                    onChange={e => setRecordsPerPage(Number(e.target.value))}
                   >
-                    <option value="">All Status</option>
-                    <option value="captured">Captured</option>
-                    <option value="pending">Pending</option>
-                    <option value="failed">Failed</option>
+                    <option value={10}>Show 10</option>
+                    <option value={25}>Show 25</option>
+                    <option value={50}>Show 50</option>
+                    <option value={100}>Show 100</option>
                   </select>
                 </div>
               </div>
@@ -536,14 +554,17 @@ useEffect(() => {
                       <tr><td colSpan={8} className="text-center text-gray-500 py-4">No donations found.</td></tr>
                     )}
                     {sortedDonations
-                      .slice((donationPage - 1) * PAGE_SIZE, donationPage * PAGE_SIZE)
+                      .slice((donationPage - 1) * recordsPerPage, donationPage * recordsPerPage)
                       .map(donation => {
                         // Helper to highlight search term
                         const highlight = (text) => {
                           if (!searchTerm.trim()) return text;
-                          const term = searchTerm.trim();
-                          const regex = new RegExp(`(${term})`, 'gi');
-                          return String(text).split(regex).map((part, i) =>
+                          const term = String(searchTerm.trim());
+                          // Escape RegExp special characters in the search term
+                          const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                          // Use case-insensitive regex without global flag to avoid lastIndex state issues
+                          const regex = new RegExp(`(${escaped})`, 'i');
+                          return String(text).split(new RegExp(`(${escaped})`, 'i')).map((part, i) =>
                             regex.test(part)
                               ? <span key={i} style={{ background: '#ffe066', fontWeight: 'bold' }}>{part}</span>
                               : part
@@ -556,9 +577,16 @@ useEffect(() => {
                             <td className="px-6 py-4 whitespace-nowrap">{highlight(donation.donor_mobile || "-")}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{highlight(donation.pan || "-")}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{highlight(donation.donor_aadhar || "-")}</td>
-                            <td className="px-6 py-4 whitespace-nowrap font-bold text-green-600">₹{donation.amount}</td>
+                            <td className="px-6 py-4 whitespace-nowrap font-bold text-green-600">₹{highlight(donation.amount || '-')}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{donation.status}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">{donation.createdAt ? (typeof donation.createdAt === "object" && donation.createdAt.toDate ? donation.createdAt.toDate().toLocaleString() : new Date(donation.createdAt).toLocaleString()) : "-"}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {(() => {
+                                const dateStr = donation.createdAt
+                                  ? (typeof donation.createdAt === "object" && donation.createdAt.toDate ? donation.createdAt.toDate().toLocaleString() : new Date(donation.createdAt).toLocaleString())
+                                  : "-";
+                                return highlight(dateStr);
+                              })()}
+                            </td>
                           </tr>
                         );
                       })}
@@ -566,19 +594,22 @@ useEffect(() => {
                 </table>
               </div>
               {/* Donation Pagination Controls */}
-              {sortedDonations.length > PAGE_SIZE && (
+              {sortedDonations.length > recordsPerPage && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 border-t bg-gray-50">
-                  <div className="text-sm text-gray-600">Page {donationPage} of {Math.max(1, Math.ceil(sortedDonations.length / PAGE_SIZE))}</div>
+                  <div className="text-sm text-gray-600">
+                    Showing {Math.min((donationPage - 1) * recordsPerPage + 1, sortedDonations.length)} to {Math.min(donationPage * recordsPerPage, sortedDonations.length)} of {sortedDonations.length} entries
+                  </div>
                   <div className="flex items-center gap-2">
                     <button
                       className="px-3 py-1 rounded border text-sm disabled:opacity-50"
                       onClick={() => setDonationPage(p => Math.max(1, p - 1))}
                       disabled={donationPage === 1}
                     >Prev</button>
+                    <span className="text-sm text-gray-600">Page {donationPage} of {Math.max(1, Math.ceil(sortedDonations.length / recordsPerPage))}</span>
                     <button
                       className="px-3 py-1 rounded border text-sm disabled:opacity-50"
-                      onClick={() => setDonationPage(p => (p < Math.ceil(sortedDonations.length / PAGE_SIZE) ? p + 1 : p))}
-                      disabled={donationPage >= Math.ceil(sortedDonations.length / PAGE_SIZE)}
+                      onClick={() => setDonationPage(p => (p < Math.ceil(sortedDonations.length / recordsPerPage) ? p + 1 : p))}
+                      disabled={donationPage >= Math.ceil(sortedDonations.length / recordsPerPage)}
                     >Next</button>
                   </div>
                 </div>

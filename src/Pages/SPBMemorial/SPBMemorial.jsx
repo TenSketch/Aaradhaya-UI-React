@@ -17,8 +17,9 @@ const SPBMemorial = () => {
     <div className="spb-memorial-page">
       <Navbar />
       <main className="pt-20">
-        {/* Full Screen Video Section */}
-        <section className="relative h-screen overflow-hidden memorial-hero-section">
+  {/* Full Screen Video Section */}
+  {/* Full height on md+; shorter on smaller screens using Tailwind responsive classes */}
+  <section className="relative md:h-screen h-[60vh] overflow-hidden memorial-hero-section">
           <video
             autoPlay
             muted
@@ -29,8 +30,9 @@ const SPBMemorial = () => {
             <source src={"/assets/videos/SPB_Museum-completion-render-animation.mp4"} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
-          <div className="relative z-10 flex items-center justify-center h-full bg-black bg-opacity-50">
-            <h1 className="text-5xl font-bold text-gold">SPB Memorial</h1>
+          {/* Heading moved to top with slight margin and no background */}
+          <div className="relative z-10 flex items-start justify-center h-full">
+            <h1 className="mt-8 md:mt-12 text-4xl md:text-5xl font-bold text-gold">SPB Memorial</h1>
           </div>
         </section>
 

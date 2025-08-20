@@ -13,7 +13,7 @@ const Footer = () => (
           {/* <li><NavLink to="/board-members" className={({ isActive }) => isActive ? 'hover:text-gold font-bold' : 'hover:text-gold'}>Board Members</NavLink></li> */}
           <li><NavLink to="/gallery" className={({ isActive }) => isActive ? 'hover:text-gold font-bold' : 'hover:text-gold'}>Gallery</NavLink></li>
           <li><NavLink to="/contact" className={({ isActive }) => isActive ? 'hover:text-gold font-bold' : 'hover:text-gold'}>Contact Us</NavLink></li>
-          <li><a href="#donate" className="hover:text-gold">Donate</a></li>
+          <li><NavLink to="/donate" className={({ isActive }) => isActive ? 'hover:text-gold font-bold' : 'hover:text-gold'}>Donate</NavLink></li>
         </ul>
       </div>
       <div className="col2">
@@ -28,7 +28,7 @@ const Footer = () => (
       <div className="col4">
         <h5 className="text-xl font-bold mb-2">Contact Us</h5>
         <p className="font-bold">Aaradhya Charitable Trust</p>
-        <address className="">Old No. 16, New No. 41,<br />Kamdar Nagar, Nungambakkam,<br />Chennai, Tamll Nadu - 600034</address>
+  <address className="">Old No. 16, New No. 41,<br />Kamdar Nagar, Nungambakkam,<br />Chennai, Tamil Nadu - 600034</address>
         <p className="">Contact no.: <a href="tel:+9360934646">9360934646</a></p>
         <p className="">Email: <a href="mailto:trustaaradhya@gmail.com">trustaaradhya@gmail.com</a></p>
       </div>

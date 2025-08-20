@@ -28,7 +28,7 @@ const Gallery = () => {
   return (
     <div className="gallery-page">
       <Navbar />
-      <main className="container mx-auto px-4">
+  <main className="container mx-auto px-4 md:max-w-[80%]">
         <h1>Gallery</h1>
         <p>
           Welcome to a bird's eye view of the tombstone where Shri S.P. Balasubrahmanyam was laid to rest.

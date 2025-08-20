@@ -62,7 +62,7 @@ const LandingPage = () => {
         {/* Vision Section */}
         <section
           id="vision"
-          className="w-[calc(100%-88px)] mx-auto rounded-2xl shadow-lg relative px-4 py-10 md:py-16 overflow-hidden"
+          className="w-[calc(100%-88px)] mx-auto md:max-w-[70%] rounded-2xl shadow-lg relative px-4 py-10 md:py-16 overflow-hidden"
         >
           <div
             ref={visionRef}
