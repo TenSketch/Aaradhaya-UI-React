@@ -57,7 +57,7 @@ const Navbar = () => {
       <ul
         id="menu"
         className={
-          'nav-links flex flex-col items-center space-y-4 justify-center lg:flex-row lg:space-y-0 lg:space-x-4 lg:justify-between' +
+          'nav-links flex flex-col items-center space-y-4 justify-center lg:flex-row lg:space-y-0 lg:space-x-4 lg:justify-between ' +
           (menuOpen ? ' active' : '')
         }
       >

@@ -98,6 +98,26 @@
   background-color: #f9fafb;
 }
 
+/* Eye toggle button inside input */
+.auth-password-toggle {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.auth-password-toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(20, 83, 45, 0.08);
+}
+
 .auth-input:focus {
   outline: none;
   border-color: #14532d;

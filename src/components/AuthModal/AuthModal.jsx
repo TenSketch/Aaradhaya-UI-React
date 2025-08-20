@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
-import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, signOut } from 'firebase/auth';
+import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, signOut, updateProfile } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 import 'react-toastify/dist/ReactToastify.css';
 import './AuthModal.css';
@@ -15,6 +15,8 @@ const AuthModal = ({ isOpen, onClose }) => {
     password: '',
     confirmPassword: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -64,7 +66,7 @@ const AuthModal = ({ isOpen, onClose }) => {
       // Store user data in localStorage
       const userData = {
         uid: user.uid,
-        name: user.displayName,
+        name: user.displayName || (user.email ? user.email.split('@')[0].replace(/[._]/g, ' ') : 'User'),
         email: user.email,
         photoURL: user.photoURL
       };
@@ -122,6 +124,13 @@ const AuthModal = ({ isOpen, onClose }) => {
         } catch (signOutError) {
         }
         
+        // Set the Firebase user's displayName so future sign-ins carry the name
+        try {
+          await updateProfile(user, { displayName: formData.name });
+        } catch (profileErr) {
+          console.warn('Failed to set displayName:', profileErr);
+        }
+
         const userData = {
           uid: user.uid,
           name: formData.name,
@@ -152,9 +161,12 @@ const AuthModal = ({ isOpen, onClose }) => {
           setLoading(false);
           return;
         }
+        // If displayName is not set in Firebase, derive a readable name from the email
+        const nameFromEmail = user.email ? user.email.split('@')[0].replace(/[._]/g, ' ') : '';
+        const readableName = user.displayName || nameFromEmail || 'User';
         const userData = {
           uid: user.uid,
-          name: user.displayName || 'User',
+          name: readableName,
           email: user.email,
           emailVerified: user.emailVerified
         };
@@ -241,7 +253,7 @@ const AuthModal = ({ isOpen, onClose }) => {
               <div className="auth-input-group">
                 <i className="fas fa-lock auth-input-icon"></i>
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   name="password"
                   placeholder="Password"
                   value={formData.password}
@@ -249,13 +261,21 @@ const AuthModal = ({ isOpen, onClose }) => {
                   required
                   className="auth-input"
                 />
+                <button
+                  type="button"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="auth-password-toggle"
+                  onClick={() => setShowPassword((s) => !s)}
+                >
+                  <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                </button>
               </div>
 
               {isSignUp && (
                 <div className="auth-input-group">
                   <i className="fas fa-lock auth-input-icon"></i>
                   <input
-                    type="password"
+                    type={showConfirmPassword ? 'text' : 'password'}
                     name="confirmPassword"
                     placeholder="Confirm Password"
                     value={formData.confirmPassword}
@@ -263,6 +283,14 @@ const AuthModal = ({ isOpen, onClose }) => {
                     required
                     className="auth-input"
                   />
+                  <button
+                    type="button"
+                    aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                    className="auth-password-toggle"
+                    onClick={() => setShowConfirmPassword((s) => !s)}
+                  >
+                    <i className={`fas ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                  </button>
                 </div>
               )}
 
