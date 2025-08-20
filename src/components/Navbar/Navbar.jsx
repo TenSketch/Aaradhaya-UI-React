@@ -57,7 +57,7 @@ const Navbar = () => {
       <ul
         id="menu"
         className={
-          'nav-links flex flex-col items-center space-y-4 justify-center lg:flex-row lg:space-y-0 lg:space-x-4 lg:justify-between ' +
+          'nav-links flex flex-col items-center space-y-4 justify-center lg:flex-row lg:space-y-0 lg:space-x-4 lg:justify-between 2' +
           (menuOpen ? ' active' : '')
         }
       >
@@ -129,9 +129,10 @@ const Navbar = () => {
           ) : (
             <button
               onClick={handleAuthModalOpen}
-              className="nav-link flex items-center bg-green-700 hover:bg-green-800 text-white font-semibold px-4 py-2 rounded-lg transition ml-2 border-none cursor-pointer"
+              className="nav-link flex items-center bg-green-700 hover:bg-green-800 text-white font-semibold px-4 py-2 rounded-lg transition lg:ml-2 border-none cursor-pointer"
             >
-              <i className="fas fa-sign-in-alt mr-1"></i>Signin
+              <i className="fas fa-sign-in-alt mr-2"></i>
+              Sign In
             </button>
           )}
         </li>

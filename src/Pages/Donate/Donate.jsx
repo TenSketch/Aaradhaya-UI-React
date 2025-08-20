@@ -235,7 +235,7 @@ const Donate = () => {
                     Support the SPB Museum
                   </h3>
                   <p className="text-base text-gray-700 leading-relaxed font-medium">
-                    Your contribution directly supports the construction and development of the SPB Museum — a living tribute to <span className="font-semibold text-gray-800">Shri S.P. Balasubrahmanyam</span>. Every donation helps us preserve his legacy, create inspiring exhibits, and build a cultural space that celebrates music, art, and community.
+                    Your contribution directly supports the construction and development of the SPB Museum — a living tribute to <span className="font-semibold text-gray-800">Shri&nbsp;S.P.&nbsp;Balasubrahmanyam</span>. Every donation helps us preserve his legacy, create inspiring exhibits, and build a cultural space that celebrates music, art, and community.
                   </p>
                 </div>
                 <img src="/assets/images/gallery/SPB_Museum-photos-8.jpg" alt="Donate to Support" className="mx-auto max-w-full rounded-md shadow-md" />
@@ -291,7 +291,7 @@ const Donate = () => {
                     </label>
                   </div>
                   <div className="relative">
-                    <input type="text" name="donor_aadhar" required pattern="\d{12}" maxLength={12}
+                    <input type="tel" name="donor_aadhar" required pattern="\d{12}" maxLength={12}
                       className="peer w-full px-3 pt-5 pb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-clr"
                       placeholder=" " />
                     <label className="absolute text-sm text-gray-500 left-3 top-2 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm transition-all">

@@ -293,11 +293,11 @@ app.post('/api/razorpay/verify', async (req, res) => {
 
                 <!-- Tax Exemption Declaration -->
                 <div style="background: #f0f9f4; border: 2px solid #14532d; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-                  <h3 style="color: #14532d; font-size: 1.2rem; margin: 0 0 12px 0;">TAX EXEMPTION DECLARATION</h3>
-                  <p style="margin: 0 0 12px 0; color: #333; line-height: 1.6; text-align: justify;">
+                  <h3 style="color: #14532d; font-size: 1.2rem; margin: 0 0 12px 0; text-align: left;">TAX EXEMPTION DECLARATION</h3>
+                  <p style="margin: 0 0 12px 0; color: #333; line-height: 1.6; text-align: left;">
                     This is to certify that the above-mentioned donation is eligible for deduction under Section 80G of the Income Tax Act, 1961, as per the rules and regulations applicable to our organization, <strong>Aaradhaya Trust</strong>, which is registered under Section 80G of the Income Tax Act, 1961 vide Registration No. <strong>AAJTA6207EF20211</strong>.
                   </p>
-                  <p style="margin: 0; color: #dc2626; font-size: 0.9rem; font-weight: 600;">
+                  <p style="margin: 0; color: #dc2626; font-size: 0.9rem; font-weight: 600; text-align: left;">
                     <strong>Note:</strong> As per the Income Tax Act, cash donations exceeding ₹2,000 are not eligible for deduction under Section 80G. This donation was made through digital payment mode and is eligible for tax benefits.
                   </p>
                 </div>

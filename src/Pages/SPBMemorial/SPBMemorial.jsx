@@ -19,12 +19,12 @@ const SPBMemorial = () => {
       <main className="pt-20">
   {/* Full Screen Video Section */}
   {/* Full height on md+; shorter on smaller screens using Tailwind responsive classes */}
-  <section className="relative md:h-screen h-[60vh] overflow-hidden memorial-hero-section">
+  <section className="relative md:h-screen h-[50vh] overflow-hidden memorial-hero-section">
           <video
             autoPlay
             muted
             loop
-            className="absolute w-full h-full object-cover"
+            className="absolute w-full h-full object-contain md:object-cover"
             poster={"/assets/images/gallery/SPB_Museum-photos-9.jpg"}
           >
             <source src={"/assets/videos/SPB_Museum-completion-render-animation.mp4"} type="video/mp4" />
