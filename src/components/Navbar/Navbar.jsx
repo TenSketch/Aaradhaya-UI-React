@@ -16,10 +16,9 @@ const Navbar = () => {
     const checkAuthStatus = () => {
       setIsLoggedIn(isAuthenticated());
       setUser(getCurrentUser());
-    };
+  };
     
     checkAuthStatus();
-    // Check auth status when component mounts and when localStorage changes
     window.addEventListener('storage', checkAuthStatus);
     
     return () => {
@@ -52,13 +51,13 @@ const Navbar = () => {
 
   return (
     <nav className="navbar fixed top-0 z-50 transition-all mx-auto px-5 py-3 flex items-center justify-between">
-      <div className="navbar-brand flex-shrink-0">
+      <div className="navbar-brand flex-auto">
         <img src="/assets/images/logo-Aaradhya_trust.png" className="logo" alt="logo-Aaradhya_trust" />
       </div>
       <ul
         id="menu"
         className={
-          'nav-links flex flex-col items-center justify-between md:flex-row md:space-y-0 space-y-10' +
+          'nav-links flex flex-col items-center space-y-4 justify-center lg:flex-row lg:space-y-0 lg:space-x-4 lg:justify-between' +
           (menuOpen ? ' active' : '')
         }
       >
@@ -101,7 +100,7 @@ const Navbar = () => {
                 className="profile-button flex items-center bg-green-700 hover:bg-green-800 text-white font-semibold px-4 py-2 rounded-lg transition border-none cursor-pointer"
               >
                 <i className="fas fa-user mr-2"></i>
-                {user?.name || 'User'}
+                {user?.name || ''}
                 <i className={`fas fa-chevron-down ml-2 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}></i>
               </button>
               {dropdownOpen && (
@@ -110,7 +109,7 @@ const Navbar = () => {
                     <div className="user-info">
                       <i className="fas fa-user-circle text-2xl text-green-700 mb-1"></i>
                       <div className="user-details">
-                        <p className="user-name">{user?.name || 'User'}</p>
+                        <p className="user-name">{user?.name || ''}</p>
                         <p className="user-email">{user?.email || ''}</p>
                       </div>
                     </div>
@@ -137,7 +136,7 @@ const Navbar = () => {
           )}
         </li>
       </ul>
-  <button id="menu-toggle" className="flex-shrink-0 lg:hidden" onClick={handleToggle} aria-label="Toggle menu">
+      <button id="menu-toggle" className="flex-auto lg:hidden" onClick={handleToggle} aria-label="Toggle menu">
         <i className="fa-brands fa-pagelines fa-3x"></i>
       </button>
       

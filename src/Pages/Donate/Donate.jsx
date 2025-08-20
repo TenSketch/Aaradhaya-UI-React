@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Donate.css";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
@@ -65,6 +66,7 @@ const Donate = () => {
     setPanLast(val);
   };
   const [showThankYou, setShowThankYou] = useState(false);
+  const navigate = useNavigate();
   // Address state
   const [address, setAddress] = useState("");
 
@@ -456,7 +458,7 @@ const Donate = () => {
               <p className="text-gray-700 mt-3">
                 A confirmation email with your donation receipt has been sent to the address you provided — please check your inbox (and spam/promotions folder).
               </p>
-              <button onClick={() => setShowThankYou(false)} className="inline-block mt-5 bg-secondary-clr text-white px-6 py-2 rounded-full hover:bg-green-800 transition">
+              <button onClick={() => { setShowThankYou(false); navigate('/'); }} className="inline-block mt-5 bg-secondary-clr text-white px-6 py-2 rounded-full hover:bg-green-800 transition">
                 Go Back to Home
               </button>
             </div>
