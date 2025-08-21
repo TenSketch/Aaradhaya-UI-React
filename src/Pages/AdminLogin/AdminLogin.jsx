@@ -54,12 +54,12 @@ const AdminLogin = () => {
   return (
     <>
     <ToastContainer />
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-      <div className="w-full max-w-md">
+    <div className="h-screen flex items-center justify-center p-4 bg-gray-50 overflow-hidden">
+      <div className="w-full max-w-md" style={{ maxHeight: 'calc(100vh - 2rem)', overflowY: 'auto' }}>
         {/* Logo Section */}
         <div className="logo-container text-center mb-8">
-          <img src={logo} alt="Aaradhya Trust Logo" className="mx-auto mb-4 w-24" />
-          <h1 className="text-3xl font-bold mb-2">Aaradhya Trust</h1>
+          <img src={logo} alt="Aardhaya Charitable Trust Logo" className="mx-auto mb-4 logo-img" />
+          <h1 className="text-3xl font-bold mb-2">Aardhaya Charitable Trust</h1>
           <p className="text-lg">Admin Panel</p>
         </div>
         {/* Login Form */}

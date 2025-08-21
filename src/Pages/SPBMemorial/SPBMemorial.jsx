@@ -32,13 +32,13 @@ const SPBMemorial = () => {
           </video>
           {/* Heading moved to top with slight margin and no background */}
           <div className="relative z-10 flex items-start justify-center h-full">
-            <h1 className="mt-8 md:mt-12 text-4xl md:text-5xl font-bold text-gold">SPB Memorial</h1>
+            <h1 className="mt-8 md:mt-12 text-2xl md:text-5xl font-bold text-gold">SPB Memorial</h1>
           </div>
         </section>
 
         {/* Foundation Content */}
         <section className="container mx-auto px-4 py-10">
-          <h2 className="text-3xl font-bold text-gold mb-6">The Foundation</h2>
+          <h2 className="text-3xl font-bold text-gold mb-6 text-center">The Foundation</h2>
           <p className="mb-6">
             S.P. Balasubrahmanyam is a name that always resonates synonymous with music. While every obituary to him since he passed away
             due to COVID-19 in 2020 is dedicated to his pure talent, enthralling voice, the magnetism of his personality, and affable nature,
@@ -51,7 +51,7 @@ const SPBMemorial = () => {
 
         {/* Design & Plan Section */}
         <section className="container mx-auto px-4 py-10">
-          <h2 className="text-3xl font-bold text-gold mb-6">Design &amp; Plan</h2>
+          <h2 className="text-3xl font-bold text-gold mb-6 text-center">Design &amp; Plan</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {designImages.map((img, idx) => (
               <div key={idx} className="design-card">

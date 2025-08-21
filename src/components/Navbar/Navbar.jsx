@@ -52,7 +52,9 @@ const Navbar = () => {
   return (
     <nav className="navbar fixed top-0 z-50 transition-all mx-auto px-5 py-3 flex items-center justify-between">
       <div className="navbar-brand flex-auto">
-        <img src="/assets/images/logo-Aaradhya_trust.png" className="logo" alt="logo-Aaradhya_trust" />
+        <NavLink to="/" onClick={handleLinkClick} className="logo-link inline-block">
+          <img src="/assets/images/logo-Aaradhya_trust.png" className="logo" alt="Aaradhya Trust Home" />
+        </NavLink>
       </div>
       <ul
         id="menu"

@@ -4,9 +4,23 @@
   box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
   border-radius: 1rem;
 }
-.logo-container img {
-  width: 96px;
+.logo-container img, .logo-img {
+  width: 140px; /* increased logo size */
   height: auto;
+  max-width: 60%;
+}
+
+/* Ensure the page stays within 100vh and avoids body scroll. The outer wrapper uses full viewport height
+   and the inner card can scroll internally if its content exceeds available space. */
+html, body, .min-h-screen, .h-screen {
+  height: 100vh;
+}
+.min-h-screen {
+  min-height: 100vh;
+}
+.form-container {
+  overflow: auto;
+  max-height: calc(100vh - 6rem); /* keep some spacing for padding */
 }
 .input-group i {
   font-size: 1.1rem;
